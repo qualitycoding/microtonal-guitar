@@ -2,13 +2,13 @@
 
 void MicrotonalVoice::noteStarted()
 {
-    currentStringIndex = juce::jlimit(0, 5, (int) currentlyPlayingNote.midiChannel - 2);
+    // Store the string index atomically
+    currentStringIndex.store(juce::jlimit(0, 5, (int) currentlyPlayingNote.midiChannel - 2));
 
     currentSampleRate = getSampleRate();
     level = currentlyPlayingNote.noteOnVelocity.asUnsignedFloat();
     tailOff = 0.0;
     
-    // Create a buffer large enough for the lowest possible bass notes (e.g., 1 second max delay)
     if (delayBuffer.getNumSamples() == 0)
         delayBuffer.setSize(1, (int)currentSampleRate + 1);
         
@@ -18,8 +18,28 @@ void MicrotonalVoice::noteStarted()
 
     updateFrequency();
 
-    // "Pluck" the string: We will output pure noise for exactly one wavelength
     noiseSamplesLeft = (int)currentDelayLength;
+}
+
+void MicrotonalVoice::updateFrequency()
+{
+    int midiNote = currentlyPlayingNote.initialNote;
+    
+    // Load the atomic string index safely
+    int stringIdx = currentStringIndex.load();
+    
+    int openNoteMidi = 40 + (stringIdx * 5); 
+    int fretNumber = std::max(0, midiNote - openNoteMidi); 
+    
+    // Store the fret number so the UI can query it
+    currentFretNumber.store(fretNumber);
+
+    double targetFreq = tuningEngine->getFrequency(stringIdx, fretNumber);
+
+    double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
+    targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
+
+    currentDelayLength = currentSampleRate / targetFreq;
 }
 
 void MicrotonalVoice::noteStopped(bool allowTailOff)
@@ -37,24 +57,6 @@ void MicrotonalVoice::noteStopped(bool allowTailOff)
 void MicrotonalVoice::notePitchbendChanged()
 {
     updateFrequency(); 
-}
-
-void MicrotonalVoice::updateFrequency()
-{
-    int midiNote = currentlyPlayingNote.initialNote;
-    
-    // Calculate the fret based on THIS string's open note
-    // (Assuming standard MIDI tuning for the open strings as a baseline)
-    int openNoteMidi = 40 + (currentStringIndex * 5); // Rough standard tuning approximation
-    int fretNumber = std::max(0, midiNote - openNoteMidi); 
-
-    // USE currentStringIndex HERE INSTEAD OF 0
-    double targetFreq = tuningEngine->getFrequency(currentStringIndex, fretNumber);
-
-    double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
-    targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
-
-    currentDelayLength = currentSampleRate / targetFreq;
 }
 
 void MicrotonalVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)

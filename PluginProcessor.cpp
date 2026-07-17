@@ -21,8 +21,8 @@ MicroGuitarProcessor::MicroGuitarProcessor()
     apvts.addParameterListener("stringCount", this);
     apvts.addParameterListener("tuningType", this);
     apvts.addParameterListener("refFreq", this);
+    apvts.addParameterListener("musicalKey", this); // ADDED listener
 
-    // Initialize the tuning engine with the default parameters
     updateGuitarState();
 }
 
@@ -31,6 +31,18 @@ MicroGuitarProcessor::~MicroGuitarProcessor()
     apvts.removeParameterListener("stringCount", this);
     apvts.removeParameterListener("tuningType", this);
     apvts.removeParameterListener("refFreq", this);
+    apvts.removeParameterListener("musicalKey", this); // REMOVED listener
+}
+
+void MicroGuitarProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    juce::ignoreUnused (newValue);
+
+    if (parameterID == "stringCount" || parameterID == "tuningType" || 
+        parameterID == "refFreq" || parameterID == "musicalKey") // ADDED check
+    {
+        updateGuitarState();
+    }
 }
 
 // Define the parameters exposed to the DAW
@@ -49,32 +61,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout MicroGuitarProcessor::create
     // 3. Tuning Preset (Dropdown menu)
     juce::StringArray tuningOptions = { "12-TET", "24-TET", "31-EDO", "5-Limit Just" };
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
-        "tuningType", "Microtonal Scale", tuningOptions, 0)); // 0 is 12-TET default
+        "tuningType", "Microtonal Scale", tuningOptions, 0));
+
+    // 4. ADDED: Musical Key Dropdown parameter [2, 4]
+    juce::StringArray keyOptions = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "musicalKey", "Musical Key", keyOptions, 0)); // Defaults to C (0)
 
     return { params.begin(), params.end() };
-}
-
-// --- Parameter Handling Logic ---
-void MicroGuitarProcessor::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    // If the user changes a knob in Ableton, update our engine
-    if (parameterID == "stringCount" || parameterID == "tuningType" || parameterID == "refFreq") 
-    {
-        updateGuitarState();
-    }
 }
 
 void MicroGuitarProcessor::updateGuitarState()
 {
     GuitarState newState;
     
-    // Read the current values from the APVTS
-    newState.numStrings = apvts.getRawParameterValue("stringCount")->load();
+    // FIXED: Added explicit (int) casts to resolve warning C4244
+    newState.numStrings = (int)apvts.getRawParameterValue("stringCount")->load();
     newState.referenceFrequency = apvts.getRawParameterValue("refFreq")->load();
     
-    int tuningChoice = apvts.getRawParameterValue("tuningType")->load();
+    int tuningChoice = (int)apvts.getRawParameterValue("tuningType")->load();
 
-    // Map the dropdown choice to our factory methods
     switch (tuningChoice)
     {
         case 0: newState.currentTuning = TuningEngine::create12TET(); break;
@@ -84,17 +90,14 @@ void MicroGuitarProcessor::updateGuitarState()
         default: newState.currentTuning = TuningEngine::create12TET(); break;
     }
 
-    // Set standard open string intervals (Standard E tuning mapping)
-    // In a full build, this would also be dynamic based on numStrings
     newState.openStringFrequencies = { 82.41, 110.00, 146.83, 196.00, 246.94, 329.63 };
 
-    // Push to the engine
     tuningEngine.setGuitarState(newState);
 }
 
-// --- Core Audio/MIDI Processing ---
 void MicroGuitarProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    juce::ignoreUnused (samplesPerBlock); // FIXED: Clears the unreferenced parameter warning
     mpeSynth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
@@ -108,9 +111,16 @@ void MicroGuitarProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
 
-    // Create a new buffer to hold our "Guitar-ified" MIDI
     juce::MidiBuffer processedMidi;
-    int currentStringTarget = 0;
+
+    // Fetch dynamic parameters atomically
+    int numStrings = (int)apvts.getRawParameterValue("stringCount")->load();
+    int keyChoice = (int)apvts.getRawParameterValue("musicalKey")->load();
+
+    // Map each of the 12 chromatic keys to a preferred hand/fret center position on the fretboard [5]
+    // (e.g. C=fret 5, G=fret 3, E=fret 2, etc.)
+    const int preferredFrets[12] = { 5, 6, 7, 6, 2, 1, 2, 3, 4, 5, 6, 7 };
+    int targetFret = preferredFrets[juce::jlimit(0, 11, keyChoice)];
 
     for (const auto meta : midiMessages)
     {
@@ -118,27 +128,40 @@ void MicroGuitarProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
         if (message.isNoteOn() || message.isNoteOff() || message.isPitchWheel())
         {
-            // Simple "Round Robin" string allocation for the MVP.
-            // In a real playing scenario, it cycles through strings 0 to 5.
-            // MPE Channels start at 2 (Channel 1 is for global messages).
-            int targetChannel = 2 + currentStringTarget;
+            int midiNote = message.getNoteNumber();
+            
+            // Proximity algorithm: Find the string that produces this note closest to our key's target fret [5]
+            int bestString = 0;
+            int minDistance = 999;
+
+            for (int s = 0; s < numStrings; ++s)
+            {
+                int openNoteMidi = 40 + (s * 5); // Matches your voice open-tuning formula [1]
+                int fret = midiNote - openNoteMidi;
+                
+                if (fret >= 0 && fret <= 24) // Restrict selection to standard fret neck range
+                {
+                    int distance = std::abs(fret - targetFret);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        bestString = s;
+                    }
+                }
+            }
+
+            // Route the note to our selected string's MPE channel (2 to 7)
+            int targetChannel = 2 + bestString;
             
             message.setChannel(targetChannel);
             processedMidi.addEvent(message, meta.samplePosition);
-
-            // Move to the next string for the next note played
-            if (message.isNoteOn()) {
-                currentStringTarget = (currentStringTarget + 1) % 6;
-            }
         }
         else 
         {
-            // Pass through other MIDI data untouched
             processedMidi.addEvent(message, meta.samplePosition);
         }
     }
 
-    // Pass our routed MIDI to the synthesizer instead of the raw keyboard MIDI
     mpeSynth.renderNextBlock(buffer, processedMidi, 0, buffer.getNumSamples());
 }
 
@@ -171,3 +194,34 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new MicroGuitarProcessor();
 }
 
+std::vector<MicroGuitarProcessor::ActiveNote> MicroGuitarProcessor::getActiveNotes() const
+{
+    std::vector<ActiveNote> active;
+    
+    for (int i = 0; i < mpeSynth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<const MicrotonalVoice*>(mpeSynth.getVoice(i)))
+        {
+            if (voice->isActive())
+            {
+                active.push_back({ voice->getStringIndex(), voice->getFretNumber() });
+            }
+        }
+    }
+    
+    return active;
+}
+
+int MicroGuitarProcessor::getFretCount() const
+{
+    // FIXED: Added explicit (int) cast to resolve warning C4244
+    int tuningChoice = (int)apvts.getRawParameterValue("tuningType")->load();
+    switch (tuningChoice)
+    {
+        case 0: return 24; // 12-TET -> 24 frets (2 octaves)
+        case 1: return 24; // 24-TET -> 24 frets (1 octave)
+        case 2: return 31; // 31-EDO -> 31 frets (1 octave)
+        case 3: return 12; // 5-Limit Just -> 12 frets (1 octave)
+        default: return 24;
+    }
+}

@@ -2,6 +2,7 @@
 #include "JuceHeader.h"
 #include "TuningEngine.h"
 #include <random>
+#include <atomic> // Added for thread-safe UI communication
 
 class MicrotonalVoice : public juce::MPESynthesiserVoice
 {
@@ -18,13 +19,20 @@ public:
     
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
+    // Thread-safe getters for the GUI thread
+    int getStringIndex() const { return currentStringIndex.load(); }
+    int getFretNumber() const { return currentFretNumber.load(); }
+
 private:
     TuningEngine* tuningEngine;
-    int currentStringIndex = 0;
+    
+    // Changed to atomics to prevent threading race conditions
+    std::atomic<int> currentStringIndex{ 0 };
+    std::atomic<int> currentFretNumber{ 0 };
     
     double currentSampleRate = 44100.0;
-    double level = 0.0;
-    double tailOff = 0.0;
+    float level = 0.0f;
+    float tailOff = 0.0f;
 
     // --- Karplus-Strong Variables ---
     juce::AudioBuffer<float> delayBuffer;
@@ -42,4 +50,3 @@ private:
 
     int myStringIndex;
 };
-

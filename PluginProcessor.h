@@ -39,6 +39,14 @@ public:
     // APVTS object must be public or accessible by the Editor (UI)
     juce::AudioProcessorValueTreeState apvts;
 
+        struct ActiveNote {
+        int stringIndex;
+        int fretNumber;
+    };
+
+    std::vector<ActiveNote> getActiveNotes() const;
+    int getFretCount() const;
+
 private:
     // Our math engine
     TuningEngine tuningEngine;
