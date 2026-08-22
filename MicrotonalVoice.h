@@ -47,6 +47,4 @@ private:
     std::uniform_real_distribution<float> randomDistribution{ -1.0f, 1.0f };
 
     void updateFrequency();
-
-    int myStringIndex;
 };

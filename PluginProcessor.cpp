@@ -11,17 +11,16 @@ MicroGuitarProcessor::MicroGuitarProcessor()
 #endif
        apvts (*this, nullptr, "Parameters", createParameterLayout())
 {
-     // Create 6 voices, one for each string of a standard guitar
-    for (int i = 0; i < 6; ++i) {
-        // We pass 'i' as the stringIndex!
+    noteToStringMap.fill (-1);
+    for (auto& f : activeFrets) f.store (-1);
+
+    for (int i = 0; i < maxStrings; ++i) {
         mpeSynth.addVoice(new MicrotonalVoice(&tuningEngine));
     }
 
-    // Register this class to listen for parameter changes
     apvts.addParameterListener("stringCount", this);
     apvts.addParameterListener("tuningType", this);
     apvts.addParameterListener("refFreq", this);
-    apvts.addParameterListener("musicalKey", this); // ADDED listener
 
     updateGuitarState();
 }
@@ -112,57 +111,71 @@ void MicroGuitarProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     buffer.clear();
 
     juce::MidiBuffer processedMidi;
-
-    // Fetch dynamic parameters atomically
-    int numStrings = (int)apvts.getRawParameterValue("stringCount")->load();
-    int keyChoice = (int)apvts.getRawParameterValue("musicalKey")->load();
-
-    // Map each of the 12 chromatic keys to a preferred hand/fret center position on the fretboard [5]
-    // (e.g. C=fret 5, G=fret 3, E=fret 2, etc.)
-    const int preferredFrets[12] = { 5, 6, 7, 6, 2, 1, 2, 3, 4, 5, 6, 7 };
-    int targetFret = preferredFrets[juce::jlimit(0, 11, keyChoice)];
+    const int numStrings = currentNumStrings.load();
 
     for (const auto meta : midiMessages)
     {
         auto message = meta.getMessage();
 
-        if (message.isNoteOn() || message.isNoteOff() || message.isPitchWheel())
+        if (message.isNoteOn())
         {
-            int midiNote = message.getNoteNumber();
-            
-            // Proximity algorithm: Find the string that produces this note closest to our key's target fret [5]
-            int bestString = 0;
-            int minDistance = 999;
+            int noteNum = message.getNoteNumber();
+
+            // Pick the string that puts this note at the lowest non-negative fret -
+            // the same choice a guitarist would make: the highest-pitched open
+            // string that's still at or below the note being played.
+            int stringIdx = 0;
+            int fret = 0;
+            bool found = false;
 
             for (int s = 0; s < numStrings; ++s)
             {
-                int openNoteMidi = 40 + (s * 5); // Matches your voice open-tuning formula [1]
-                int fret = midiNote - openNoteMidi;
-                
-                if (fret >= 0 && fret <= 24) // Restrict selection to standard fret neck range
+                int openNote = TuningEngine::openStringMidiNote (s);
+                int candidateFret = noteNum - openNote;
+                if (candidateFret >= 0 && (! found || candidateFret < fret))
                 {
-                    int distance = std::abs(fret - targetFret);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        bestString = s;
-                    }
+                    found = true;
+                    fret = candidateFret;
+                    stringIdx = s;
                 }
             }
+            // If the note is below every open string, this falls back to string 0, fret 0.
 
-            // Route the note to our selected string's MPE channel (2 to 7)
-            int targetChannel = 2 + bestString;
-            
-            message.setChannel(targetChannel);
-            processedMidi.addEvent(message, meta.samplePosition);
+            noteToStringMap[(size_t) noteNum] = stringIdx;
+            activeFrets[(size_t) stringIdx].store (fret);
+
+            message.setChannel (2 + stringIdx);
+            processedMidi.addEvent (message, meta.samplePosition);
         }
-        else 
+        else if (message.isNoteOff())
         {
-            processedMidi.addEvent(message, meta.samplePosition);
+            int noteNum = message.getNoteNumber();
+            int stringIdx = noteToStringMap[(size_t) noteNum];
+            if (stringIdx >= 0)
+            {
+                message.setChannel (2 + stringIdx);
+                processedMidi.addEvent (message, meta.samplePosition);
+                activeFrets[(size_t) stringIdx].store (-1);
+                noteToStringMap[(size_t) noteNum] = -1;
+            }
+        }
+        else if (message.isPitchWheel())
+        {
+            for (int s = 0; s < numStrings; ++s)
+                if (activeFrets[(size_t) s].load() >= 0)
+                {
+                    auto bendMsg = message;
+                    bendMsg.setChannel (2 + s);
+                    processedMidi.addEvent (bendMsg, meta.samplePosition);
+                }
+        }
+        else
+        {
+            processedMidi.addEvent (message, meta.samplePosition);
         }
     }
 
-    mpeSynth.renderNextBlock(buffer, processedMidi, 0, buffer.getNumSamples());
+    mpeSynth.renderNextBlock (buffer, processedMidi, 0, buffer.getNumSamples());
 }
 
 // --- DAW State Saving/Loading ---

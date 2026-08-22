@@ -11,34 +11,43 @@ TuningEngine::TuningEngine()
 
 void TuningEngine::setGuitarState(const GuitarState& newState) 
 {
+    std::lock_guard<std::mutex> lock (stateLock);
     state = newState;
 }
 
 double TuningEngine::getFrequency(int stringIndex, int fretNumber) const 
 {
-    // Safety check to prevent out-of-bounds errors
-    if (stringIndex < 0 || stringIndex >= state.numStrings) return 0.0;
+    std::lock_guard<std::mutex> lock (stateLock);
 
+    if (stringIndex < 0 || stringIndex >= state.numStrings) return 0.0;
     double openFreq = state.openStringFrequencies[stringIndex];
 
     if (state.currentTuning.isEqualTemperament) 
     {
-        // Math for EDO (Equal Divisions of the Octave)
         return openFreq * std::pow(2.0, static_cast<double>(fretNumber) / state.currentTuning.stepsPerOctave);
     } 
     else 
     {
-        // Math for Just Intonation / Ratio-based scales
         int numRatios = static_cast<int>(state.currentTuning.customRatios.size());
-        if (numRatios == 0) return openFreq; // Fallback
+        if (numRatios == 0) return openFreq;
 
-        // Calculate how many full octaves we've gone up, and the remainder
         int octaves = fretNumber / numRatios;
         int scaleDegree = fretNumber % numRatios;
-
         double ratio = state.currentTuning.customRatios[scaleDegree];
         return openFreq * ratio * std::pow(2.0, octaves);
     }
+}
+
+TuningSystem TuningEngine::getCurrentTuningSystem() const
+{
+    std::lock_guard<std::mutex> lock (stateLock);
+    return state.currentTuning; // returned by value - safe copy under the lock
+}
+
+int TuningEngine::getNumStrings() const
+{
+    std::lock_guard<std::mutex> lock (stateLock);
+    return state.numStrings;
 }
 
 // --- FACTORY PRESETS ---

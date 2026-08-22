@@ -2,6 +2,8 @@
 
 #include "JuceHeader.h"
 #include "TuningEngine.h"
+#include <array>
+#include <atomic>
 
 class MicroGuitarProcessor : public juce::AudioProcessor, 
                              public juce::AudioProcessorValueTreeState::Listener
@@ -47,10 +49,24 @@ public:
     std::vector<ActiveNote> getActiveNotes() const;
     int getFretCount() const;
 
+    const TuningEngine& getTuningEngine() const { return tuningEngine; }
+    int getNumStrings() const { return currentNumStrings.load(); }
+
+    int getActiveFret (int stringIndex) const
+    {
+        if (stringIndex < 0 || stringIndex >= maxStrings) return -1;
+        return activeFrets[(size_t) stringIndex].load();
+    }
+
 private:
-    // Our math engine
+    static constexpr int maxStrings = 12; // matches the stringCount parameter's upper bound
+
     TuningEngine tuningEngine;
     juce::MPESynthesiser mpeSynth;
+
+    std::atomic<int> currentNumStrings { 6 };
+    std::array<int, 128> noteToStringMap;
+    std::array<std::atomic<int>, maxStrings> activeFrets;
 
 
     // Helper to build the parameters Ableton will see

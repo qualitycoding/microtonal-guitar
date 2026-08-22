@@ -3,7 +3,7 @@
 void MicrotonalVoice::noteStarted()
 {
     // Store the string index atomically
-    currentStringIndex.store(juce::jlimit(0, 5, (int) currentlyPlayingNote.midiChannel - 2));
+    currentStringIndex.store(juce::jlimit(0, 11, (int) currentlyPlayingNote.midiChannel - 2));
 
     currentSampleRate = getSampleRate();
     level = currentlyPlayingNote.noteOnVelocity.asUnsignedFloat();
@@ -24,18 +24,12 @@ void MicrotonalVoice::noteStarted()
 void MicrotonalVoice::updateFrequency()
 {
     int midiNote = currentlyPlayingNote.initialNote;
-    
-    // Load the atomic string index safely
-    int stringIdx = currentStringIndex.load();
-    
-    int openNoteMidi = 40 + (stringIdx * 5); 
-    int fretNumber = std::max(0, midiNote - openNoteMidi); 
-    
-    // Store the fret number so the UI can query it
-    currentFretNumber.store(fretNumber);
+    int openNoteMidi = TuningEngine::openStringMidiNote(currentStringIndex);
+    int fretNumber = std::max(0, midiNote - openNoteMidi);
 
-    double targetFreq = tuningEngine->getFrequency(stringIdx, fretNumber);
+    currentFretNumber.store(fretNumber);   // <-- this was missing; it's what getFretNumber() actually returns
 
+    double targetFreq = tuningEngine->getFrequency(currentStringIndex, fretNumber);
     double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
     targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
 
