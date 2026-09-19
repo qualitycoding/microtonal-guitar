@@ -1,18 +1,42 @@
 {
-  "run_id": "gen-20260919T204211Z-fret-note-names",
+  "run_id": "gen-20260919T222430Z-fret-note-names-r2",
   "base_commit": "9644510",
-  "phase": "PLAN_COMPLETE_AWAITING_G0",
-  "phases_done": ["phase0_capability_check", "phase1_branch_and_research", "phase2_tests_frozen", "phase3_plan", "phase4_premortem_x3", "phase5_commit"],
+  "phase": "PLAN_COMPLETE_READY_FOR_S1_PENDING_D5_CONFIRMATION",
+  "phases_done": [
+    "phase0_capability_check",
+    "phase1_branch_and_research",
+    "phase2_tests_frozen",
+    "phase3_plan",
+    "phase4_premortem_x3",
+    "phase5_commit"
+  ],
   "phase0": {
     "subagents_available": false,
     "note": "Planning ran single-agent (Claude Opus 5) in claude.ai; tier labels in PLAN.md are recommendations for executors."
   },
-  "decisions": {"D1": null, "D2": null, "D3": null, "D4": null},
+  "decisions": {
+    "D1": "Instrument mode: Guitar=standard EADGBE, Bass=all fourths; open strings stay 12-TET",
+    "D2": "refFreq retunes whole instrument",
+    "D3": "13b/18b",
+    "D4": "accepted",
+    "D5": "ASSUMED: bass extends upward in fourths from E1 (no low B)"
+  },
   "last_green_test": null,
   "test_harness_fixes": [],
   "operational_results": {},
-  "reset_log": [],
+  "reset_log": [
+    {
+      "at": "2026-09-19T22:24Z",
+      "reason": "G0 answer to D1 added a new requirement (Instrument mode); protocol re-run from Phase 0 as r2. No r1 frozen test found invalid."
+    }
+  ],
   "frozen_hashes_file": "tests/FROZEN.sha256",
-  "environment": {"juce_path": "D:/JUCE", "generator": "Ninja", "build_type": "Release", "compiler": "MSVC x64 (VS 2022)"},
-  "resume_instructions": "Verify hashes (sha256sum -c tests/FROZEN.sha256), check out the head of this branch, continue at phase."
+  "environment": {
+    "juce_path": "D:/JUCE",
+    "generator": "Ninja",
+    "build_type": "Release",
+    "compiler": "MSVC x64 (VS 2022)"
+  },
+  "resume_instructions": "Verify hashes (sha256sum -c tests/FROZEN.sha256), check out the head of this branch, continue at phase.",
+  "previous_run": "gen-20260919T204211Z-fret-note-names"
 }

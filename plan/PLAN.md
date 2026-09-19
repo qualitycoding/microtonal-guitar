@@ -1,6 +1,8 @@
 # Execution plan — fret note names & free-entry "notes per octave"
 
-Branch `gen-20260919T204211Z-fret-note-names` · base `9644510` · status: **PLAN ONLY — not executed**
+Branch `gen-20260919T222430Z-fret-note-names-r2` (revision r2, built on r1 `gen-20260919T204211Z-fret-note-names`) · base `9644510` · status: **PLAN ONLY — not executed**
+
+> r2 change: owner answered G0 (below). D1 introduced a new requirement — an **Instrument mode (Guitar / Bass)** — so the protocol was re-run from Phase 0. r1 frozen files are unchanged (hash-verified); r2 adds frozen tests I9–I12 and O11–O13.
 
 ## 1. Goal and definition of done
 1. The player can always see **which note is sounding**: the gold active-note dot carries its name, and a
@@ -10,15 +12,17 @@ Branch `gen-20260919T204211Z-fret-note-names` · base `9644510` · status: **PLA
    exactly today's `C C# D … B`.
 4. The tuning control accepts **free numeric entry** (`13`, `13edo`, `19-TET`…) in addition to presets,
    range 1–96, plus ▲/▼ steppers and mouse-wheel so no typing is ever required.
-5. Done = all frozen unit (U1–U11, L1–L2) and integration (I1–I8) tests green, operational O1–O10 PASS.
+5. An **Instrument** selector: Guitar = standard tuning E2 A2 D3 G3 B3 E4; Bass = all fourths from E1 (E1 A1 D2 G2 C3 F3 …).
+6. Done = all frozen unit (U1–U11, L1–L2) and integration (I1–I12) tests green, operational O1–O13 PASS.
 
-## 2. Decisions needed from the owner before S1 (gate G0)
-| ID | Decision | Default if no answer | Consequence |
-|----|----------|----------------------|-------------|
-| D1 | Open strings stay at 12-TET pitches (E A D G B E) in every EDO, so in e.g. 13-EDO every fret on the low-E string is labelled `… −38¢`. Alternative: snap open strings to the nearest EDO step (changes sound). | Keep 12-TET open strings; labels show honest cents | O10 checks the honest display |
-| D2 | `refFreq` currently does nothing (C4). Make it retune the instrument? | Yes — required so labels and pitch share one anchor (test I7) | Existing sets saved at non-440 values will sound different |
-| D3 | 13/18-EDO use the second-best fifth (13b/18b, per R1). R2 also shows a wide-fifth option. | 13b/18b | Could become a later "notation fifth" option |
-| D4 | Removing the `tuningType` parameter breaks any **automation lanes** on it in old Live sets (state itself is migrated, I4). | Accept, note in README | Alternative (keep a dead legacy param) adds clutter |
+## 2. Owner decisions (G0 — answered 2026-09-19)
+| ID | Question | Answer | Effect |
+|----|----------|--------|--------|
+| D1 | Open-string tuning | New **Instrument mode**: Guitar = standard E A D G B E; Bass = all fourths. Open strings stay at 12-TET pitches (not snapped to the EDO) | Labels show honest cents in EDOs that miss 12-TET pitches (O10); tests I9–I12 |
+| D2 | Should A4 retune the instrument? | **Yes**, the whole instrument | I7, I10 |
+| D3 | 13/18-EDO naming | **13b/18b** (second-best fifth) | U1, U4, U5 |
+| D4 | Lose automation lanes on removed `tuningType` | **Accepted** | README note (S7) |
+| D5 | Bass strings 5–12: extend upward in fourths from E1 (E A D G C F …) or add a low B first (B E A D G, common on 5-string basses)? | **Assumed upward** from the literal "all fourths" answer — owner may override before S3 | I10 pins the upward table; overriding it is a Reset-Rule event |
 
 ## 3. Design
 
@@ -28,8 +32,12 @@ Branch `gen-20260919T204211Z-fret-note-names` · base `9644510` · status: **PLA
 - Parameters: remove `tuningType`; add `tuningMode` (Choice: `EDO`, `5-Limit Just`) and `edoSteps`
   (`AudioParameterInt` 1..96, default 12). Migration of legacy state in `setStateInformation`.
 - `TuningEngine` gets `GuitarState getSnapshot() const` (one lock per paint, not one per label).
-- One source of truth for open strings: MIDI table `{40,45,50,55,59,64,69,74,79,84,89,94}`;
-  frequency = `refFreq · 2^((midi−69)/12)` (fixes C1, C2, C4). `currentNumStrings` updated in
+- One source of truth for open strings: `TuningEngine::openStringMidiNote(s, InstrumentMode)` —
+  Guitar `{40,45,50,55,59,64,69,74,79,84,89,94}`, Bass `28 + 5s`; the one-argument overload stays as the
+  Guitar table for compatibility. Frequency = `refFreq · 2^((midi−69)/12)` (fixes C1, C2, C4).
+  New parameter `instrumentMode` (Choice `Guitar`,`Bass`, default Guitar). The router in `processBlock`,
+  `MicrotonalVoice::updateFrequency` and the UI all read the mode from the **same engine snapshot** —
+  never the one-argument overload. `currentNumStrings` updated in
   `updateGuitarState` (fixes C3).
 - Labels are computed from the **frequency the engine will actually produce** — never from the MIDI
   note — via `nameFrequency(hz, refFreq, N)`. Just intonation uses N=12 for naming plus cents.
@@ -70,15 +78,16 @@ failing case).
 
 **S3 [Opus]** `TuningEngine`: open-string table + `refFreq` anchor, bounds checks, `getSnapshot()`.
 Processor: new params, listeners for `edoSteps`/`tuningMode`, `currentNumStrings` update,
-`getFretCount()` → `fretCountFor`, legacy migration after `apvts.replaceState` followed by an explicit
+`getFretCount()` → `fretCountFor`, `instrumentMode` parameter + listener, mode-aware routing in
+`processBlock` and `MicrotonalVoice::updateFrequency`, legacy migration after `apvts.replaceState` followed by an explicit
 `updateGuitarState()` (a listener does not fire if the value is unchanged). ✔
 
 **S4 [Sonnet]** Add CMake target `MicroGuitarIntegrationTests` (console app, `juce_add_console_app`,
-same sources minus editor if needed, plus `tests/integration/*.cpp`). Build; run; I1–I8 green.
+same sources minus editor if needed, plus `tests/integration/*.cpp`). Build; run; I1–I12 green.
 Harness-only compile fixes (includes, namespaces) allowed and logged under `test_harness_fixes`; any
 change to an assertion = Reset Rule. ✔
 
-**S5 [Opus]** Custom tuning control (`EdoControl` component: editable combo + steppers +
+**S5 [Opus]** Instrument selector (plain `ComboBox` + stock attachment is fine — two fixed items) and custom tuning control (`EdoControl` component: editable combo + steppers +
 `ParameterAttachment`), focus release, validation tooltip. ✔
 
 **S6 [Sonnet]** Fretboard: active-note names, readout, all-frets toggle with culling, octave dots from N,
@@ -89,7 +98,7 @@ snapshot-per-paint + label cache. ✔
 **S8 [Sonnet]** Release build (Ninja, `-DCMAKE_BUILD_TYPE=Release`, per project learnings); run unit +
 integration tests; install VST3. ✔
 
-**S9 [Human + Sonnet]** Run O1–O10 in Live; record results. Any FAIL → fix in S5/S6 without touching
+**S9 [Human + Sonnet]** Run O1–O13 in Live; record results. Any FAIL → fix in S5/S6 without touching
 frozen tests, re-run the full suite. ✔ `phase: done`
 
 ## 5. Checkpoint / resume protocol
@@ -104,6 +113,7 @@ frozen tests, re-run the full suite. ✔ `phase: done`
 - B1: non-monotonic key→pitch mapping in non-12 EDOs (C8) — labels will make it visible; fixing it is a
   separate design (e.g. per-string step offsets derived from the EDO's fourth).
 - B2: `musicalKey` listener bug (C7); B3: optional Stein–Zimmermann glyphs for sharp-2 edos (R4);
-  B4: wide-fifth 13-EDO option (D3); B5: snap-to-lattice open strings (D1).
+  B4: wide-fifth 13-EDO option (D3); B5: snap-to-lattice open strings (D1); B6: low-B bass layout (D5);
+  B7: default string count per instrument (e.g. Bass → 4) — today `stringCount` stays independent.
 
 See `plan/PREMORTEM.md` for the failure analysis that shaped §3–§5.

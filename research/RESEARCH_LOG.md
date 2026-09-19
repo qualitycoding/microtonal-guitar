@@ -85,3 +85,14 @@ Repo fact: `CMakeLists.txt:26` sets `EDITOR_WANTS_KEYBOARD_FOCUS FALSE`.
 - 31-EDO: open low E (82.41 Hz) → nearest lattice note **E2, +3.3¢** (step −75 from A4).
 - 13-EDO: open low E → step −31 → spelled **Fb2, −38.4¢** (12-TET E is not on the 13-EDO lattice).
 - 5-limit major third above C4 → **E, −13.7¢**.
+
+## E. Instrument tunings (added in r2)
+
+**R9. "Standard tuning"**, Wikipedia <https://en.wikipedia.org/wiki/Standard_tuning> and **"Bass guitar tuning"**
+<https://en.wikipedia.org/wiki/Bass_guitar_tuning>:
+- Four-string bass standard tuning is E1 A1 D2 G2 in fourths — the guitar's lowest four strings an octave
+  lower (MIDI 28, 33, 38, 43; E1 = 41.203 Hz).
+- Five- and six-string basses usually add a **low B0** (and a high C3 on six strings), which keeps
+  all-fourths but changes where the lowest string sits → plan decision D5 / backlog B6.
+- Guitar standard tuning E2 A2 D3 G3 B3 E4 (MIDI 40 45 50 55 59 64) has a major third between G and B,
+  so "guitar" and "all fourths" differ only on strings 5 and above.

@@ -44,4 +44,16 @@ No new Critical or High failure modes were found. Remaining risks:
 | R-c | Automation lanes on the removed `tuningType` are lost | Low | D4 gate; documented |
 | R-d | The 217-cell oracle only covers 12–24-EDO; 25–96 rely on the rule + property tests (U7) | Medium | Rule matches every published table checked; U6 pins 31-EDO; spellings are unique and periodic for all N |
 
+## Iteration 4 (r2 — plan v3 adds Instrument mode)
+
+| # | Failure story | Root cause | Sev | Hardening |
+|---|---------------|------------|-----|-----------|
+| F20 | In Bass mode the dot sits on the wrong string and the label disagrees with the sound | Router or voice still calls the one-argument (Guitar) `openStringMidiNote` while the engine uses Bass | High | All three read mode from one engine snapshot (§3.1); I11 checks router *and* voice (`getActiveNotes`) in both modes |
+| F21 | Old Live sets open in Bass or with shifted open strings | New param default or migration wrong | High | Default Guitar; I12 legacy + round-trip |
+| F22 | Switching mode mid-note leaves a stuck voice | Note-off looks up a string computed with the old table | Medium | Note-off already keyed by `noteToStringMap` (unchanged); O13 |
+| F23 | Bass E1 sounds weak or clicky in the Karplus-Strong voice | 41 Hz fundamental, averaging low-pass designed around guitar range | Medium | O12 level/click check; tuning of the voice is backlog, not this feature |
+| F24 | Owner expected a low-B 5-string bass | "All fourths" read literally as upward extension | Medium | Recorded as D5 assumption, surfaced before S3; B6 |
+
+No new Critical or High remain after hardening. Residual risks R-a…R-d unchanged, plus F23/F24 (Medium).
+
 **Stop condition met:** 0 Critical, 0 High open.
