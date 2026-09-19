@@ -111,3 +111,10 @@ F# B E A D G B E (low B then low F#, each a fourth down).
 **Not found / rule-derived:** no standard source was located for 9+-string guitars, 7+-string basses, or
 5-string violin-family layouts that add a *low* string; those are either capped (A1) or derived from the
 owner's rule (A3) and marked RULE in U12.
+
+## G. r4 additions
+- 8-string bass common layout F#0 B0 E1 A1 D2 G2 C3 F3 and 7-string B0…F3: consistent with the all-fourths
+  extension of R10's 5/6-string layouts; no single authoritative source was fetched, so rows 7/8 are marked as
+  common practice and rows 9–15 as RULE in U12. **Unverified claim flagged.**
+- MPE lower zone: master channel 1 plus up to 15 member channels (2–16) — the repo's router already uses
+  channel 2+s, so 15 strings is the ceiling (A6). Standard MPE fact; the repo's routing is the binding constraint.

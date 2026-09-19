@@ -1,7 +1,7 @@
 {
-  "run_id": "gen-20260919T224047Z-fret-note-names-r3",
+  "run_id": "gen-20260919T224942Z-fret-note-names-r4",
   "base_commit": "9644510",
-  "phase": "PLAN_COMPLETE_READY_FOR_S1_PENDING_A1_A3_VETO_WINDOW",
+  "phase": "PLAN_COMPLETE_READY_FOR_S1_PENDING_A4_A6_VETO_WINDOW",
   "phases_done": [
     "phase0_capability_check",
     "phase1_branch_and_research",
@@ -20,9 +20,12 @@
     "D3": "13b/18b",
     "D4": "accepted",
     "D5": "fifths via presets: Violin/Mandolin, Viola/Mandola, Cello",
-    "A1_assumed": "string limits Guitar 4-8, Bass 4-6, fifths 4-5; param stays 4-12, engine clamps",
-    "A2_assumed": "fewer strings drop the lowest",
-    "A3_assumed": "5-string fifths presets add a low string"
+    "A1": "guitar 4-10, bass 4-15, fifths 4-5; stringCount param 4-15",
+    "A2": "agreed: drop lowest",
+    "A3": "agreed for high-register instruments; bass may extend upward",
+    "A4_assumed": "bass all fourths from lowest up: 4=E1..G2; 5-7 from B0; 8+ from F#0 extending upward (15 = F#0..E6)",
+    "A5_assumed": "guitar 9 +C#1, 10 +G#0",
+    "A6_assumed": "15 strings = MPE channel ceiling; maxStrings/voices/activeFrets -> 15"
   },
   "last_green_test": null,
   "test_harness_fixes": [],
@@ -48,6 +51,22 @@
       "replaced": [
         "I6"
       ]
+    },
+    {
+      "at": "2026-09-19T22:49Z",
+      "reason": "Owner answers to A1/A3 changed string limits and allowed bass to extend upward; U12-U15, I6, I14, O14-O18 invalid. Reset Rule applied; re-run as r4.",
+      "retired": [
+        "O14-O18 (r3)"
+      ],
+      "replaced": [
+        "U12",
+        "U13",
+        "U14",
+        "U15",
+        "I6",
+        "I14",
+        "I15 (cases added)"
+      ]
     }
   ],
   "frozen_hashes_file": "tests/FROZEN.sha256",
@@ -58,5 +77,5 @@
     "compiler": "MSVC x64 (VS 2022)"
   },
   "resume_instructions": "Verify hashes (sha256sum -c tests/FROZEN.sha256), check out the head of this branch, continue at phase.",
-  "previous_run": "gen-20260919T222430Z-fret-note-names-r2"
+  "previous_run": "gen-20260919T224047Z-fret-note-names-r3"
 }

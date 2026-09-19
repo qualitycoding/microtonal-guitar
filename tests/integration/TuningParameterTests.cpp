@@ -1,4 +1,4 @@
-// FROZEN TEST SUITE (re-frozen r3: I6 replaced, I8 retired) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
+// FROZEN TEST SUITE (re-frozen r4: I6 replaced twice, I8 retired) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
 // JUCE integration tests. Built by the MicroGuitarIntegrationTests console target (plan step S7)
 // and run headless:  MicroGuitarIntegrationTests.exe  (exit code != 0 on any failure).
 // NOTE: compile-unverified at freeze time (JUCE is not available in the planning sandbox);
@@ -116,13 +116,16 @@ public:
             expectEquals (q.getTuningEngine().getCurrentTuningSystem().stepsPerOctave, 13);
         }
 
-        beginTest ("I6 (r3) every requested string count yields finite, positive open strings, clamped per instrument");
+        beginTest ("I6 (r4) stringCount 4..15; guitar clamps to 10; finite, positive open strings");
         {
-            MicroGuitarProcessor p; // default instrument = Guitar, 4..8 strings (r3)
-            for (int n = 4; n <= 12; ++n)
+            MicroGuitarProcessor p; // default instrument = Guitar, 4..10 strings (r4)
+            auto* sc = dynamic_cast<juce::AudioParameterInt*> (p.apvts.getParameter ("stringCount"));
+            expect (sc != nullptr);
+            if (sc != nullptr) { expectEquals (sc->getRange().getStart(), 4); expectEquals (sc->getRange().getEnd(), 15); }
+            for (int n = 4; n <= 15; ++n)
             {
                 setParam (p, "stringCount", (float) n);
-                const int effective = juce::jlimit (4, 8, n);
+                const int effective = juce::jlimit (4, 10, n);
                 expectEquals (p.getTuningEngine().getNumStrings(), effective);
                 expectEquals (p.getNumStrings(), effective); // router uses the same count (C3)
                 for (int s = 0; s < effective; ++s)

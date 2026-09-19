@@ -1,7 +1,11 @@
 # Execution plan — fret note names & free-entry "notes per octave"
 
-Branch `gen-20260919T224047Z-fret-note-names-r3` (revision r3; history: r1 `gen-20260919T204211Z-fret-note-names`, r2 `gen-20260919T222430Z-fret-note-names-r2`) · base `9644510` · status: **PLAN ONLY — not executed**
+Branch `gen-20260919T224942Z-fret-note-names-r4` (revision r4; history: r3 `gen-20260919T224047Z-fret-note-names-r3`, r1 `gen-20260919T204211Z-fret-note-names`, r2 `gen-20260919T222430Z-fret-note-names-r2`) · base `9644510` · status: **PLAN ONLY — not executed**
 
+> r4 change: owner set string limits (guitar 4–10, bass 4–15, fifths 4–5) and limited the no-higher rule to
+> high-register instruments — bass may extend upward. Frozen U12–U15, I6, I14, O14–O18 were invalid → **Reset
+> Rule** → re-run from Phase 0. Previous r3 versions kept in `tests/retired/r3/`; new O19.
+>
 > r3 change: the owner clarified tuning ("4ths from the lowest string up", real extended-range layouts, never above the standard top string) and asked for fifths-tuned instruments as presets. That made frozen tests I8 and r2's I9–I12 invalid → **Reset Rule** → protocol re-run from Phase 0. I6 replaced, I8 and I9–I12/O11–O13 retired to `tests/retired/`; new frozen tests U12–U15, I13–I16, O14–O18.
 
 ## 1. Goal and definition of done
@@ -15,7 +19,7 @@ Branch `gen-20260919T224047Z-fret-note-names-r3` (revision r3; history: r1 `gen-
 5. An **Instrument** preset selector: Guitar, Bass, Violin / Mandolin, Viola / Mandola, Cello, with
    per-instrument string layouts and string-count limits (§3.1).
 6. Done = all frozen unit (U1–U15, L1–L2) and integration (I1–I7, I13–I16) tests green, operational
-   O1–O10 and O14–O18 PASS.
+   O1–O10 and O14–O19 PASS.
 
 ## 2. Owner decisions (G0 — answered 2026-09-19)
 | ID | Question | Answer | Effect |
@@ -25,13 +29,16 @@ Branch `gen-20260919T224047Z-fret-note-names-r3` (revision r3; history: r1 `gen-
 | D3 | 13/18-EDO naming | **13b/18b** | U1, U4, U5 |
 | D4 | Lose automation lanes on removed `tuningType` | **Accepted** | README (S7) |
 | D5 | Fifths tuning | **Presets**: Violin / Mandolin, Viola / Mandola, Cello | U12, I13 |
+| A1 | String limits | **Guitar 4–10, Bass 4–15, fifths 4–5**; `stringCount` parameter becomes 4–15 | U13, I6, I14 |
+| A2 | Fewer strings | **Agreed**: drop the lowest | U12 |
+| A3 | Adding strings | **Agreed** for high-register instruments (guitar, fifths presets: add below only). **Bass may extend upward** | U12, U14 |
 
 ### Applied by rule — owner may veto before S3 (veto = Reset Rule)
 | ID | Choice made | Why |
 |----|-------------|-----|
-| A1 | String limits: Guitar 4–8, Bass 4–6, fifths presets 4–5. The `stringCount` parameter keeps its 4–12 range (automation compatibility); the engine clamps and the UI shows the cap | 8-string guitar and 6-string bass are the largest layouts with a published standard; beyond that strings drop below ~20 Hz |
-| A2 | Fewer strings than standard remove the **lowest** strings (4-string guitar = D3 G3 B3 E4) | Top string is fixed by the owner's rule |
-| A3 | 5-string fifths presets add a low string a fifth down (violin +C3, viola +F2, cello +F1) | Real 5-string violas/cellos usually add a high E instead; the owner's no-higher rule wins |
+| A4 | Bass layout for n strings, all fourths from the lowest string up: 4 = E1…G2; 5–7 start at low B0 (5 BEADG, 6 +C3, 7 +F3); 8+ start at low F#0 and add strings **upward**: 8 = F#0…F3, 9 = …Bb3, 15 = F#0…E6 | 5/6-string rows match published layouts, 7/8 match common practice (not source-verified); below F#0 strings fall under ~20 Hz, so growth beyond 8 goes up. 15 strings ends on E6, the guitar's top note at the 24th fret |
+| A5 | Guitar 9 = + C#1, 10 = + G#0 (fourths down) | Owner's add-below rule for guitar |
+| A6 | 15 strings is also the hard technical ceiling: one MPE member channel per string (2–16). `maxStrings`, voice count and `activeFrets` grow from 12 to 15 | Current router maps string s → MIDI channel 2+s |
 
 ## 3. Design
 
@@ -87,7 +94,8 @@ failing case).
 
 **S3 [Opus]** `TuningEngine`: open-string table + `refFreq` anchor, bounds checks, `getSnapshot()`.
 Processor: new params, listeners for `edoSteps`/`tuningMode`, `currentNumStrings` update,
-`getFretCount()` → `fretCountFor`, `Instruments.cpp` (make U12–U15 green first), `instrument` parameter + listener, string-count clamp,
+`getFretCount()` → `fretCountFor`, `Instruments.cpp` (make U12–U15 green first), `instrument` parameter + listener, `stringCount` range 4–15,
+string-count clamp, `maxStrings`/voices/`activeFrets` 12 → 15 (A6),
 snapshot-based routing in `processBlock` and `MicrotonalVoice::updateFrequency`, legacy migration after `apvts.replaceState` followed by an explicit
 `updateGuitarState()` (a listener does not fire if the value is unchanged). ✔
 
@@ -107,7 +115,7 @@ snapshot-per-paint + label cache. ✔
 **S8 [Sonnet]** Release build (Ninja, `-DCMAKE_BUILD_TYPE=Release`, per project learnings); run unit +
 integration tests; install VST3. ✔
 
-**S9 [Human + Sonnet]** Run O1–O10 and O14–O18 in Live; record results. Any FAIL → fix in S5/S6 without touching
+**S9 [Human + Sonnet]** Run O1–O10 and O14–O19 in Live; record results. Any FAIL → fix in S5/S6 without touching
 frozen tests, re-run the full suite. ✔ `phase: done`
 
 ## 5. Checkpoint / resume protocol

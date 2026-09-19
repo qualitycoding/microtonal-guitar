@@ -1,4 +1,4 @@
-// FROZEN TEST SUITE (r3) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
+// FROZEN TEST SUITE (r4) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
 // Instrument presets: parameter, engine, routing and state. Tables come from mtg::openStringMidiNotes
 // (pinned independently by unit tests U12-U15). Compile-unverified at freeze; harness-only fixes per PLAN S4.
 #include <JuceHeader.h>
@@ -59,7 +59,7 @@ public:
             for (int i = 0; i < mtg::kNumInstruments; ++i)
             {
                 setP (p, "instrument", (float) i);
-                for (int n = 4; n <= 12; ++n)
+                for (int n = 4; n <= 15; ++n)
                 {
                     setP (p, "stringCount", (float) n);
                     const auto table = mtg::openStringMidiNotes (static_cast<mtg::Instrument> (i), n);
@@ -83,6 +83,10 @@ public:
                 { 1, 4, 45, 3, 2 },   // 4-string bass: A2 on the G2 string, fret 2
                 { 2, 4, 76, 3, 0 },   // violin: open E5
                 { 4, 5, 29, 0, 0 },   // 5-string cello: open low F1
+                { 0, 10, 20, 0, 0 },  // 10-string guitar: open low G#0
+                { 1, 8, 18, 0, 0 },   // 8-string bass: open low F#0
+                { 1, 15, 88, 14, 0 }, // 15-string bass: open top E6 on string 15 = MPE channel 16
+                { 1, 15, 64, 9, 1 },  // 15-string bass: E4 lands on the Eb4 string (63), fret 1
             };
             for (const auto& c : cases)
             {

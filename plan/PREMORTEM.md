@@ -71,3 +71,16 @@ No new Critical or High remain after hardening. Residual risks R-a…R-d unchang
 | F31 | Reset churn: another tuning clarification invalidates tests again | Tables frozen before the owner saw them | Medium | A1–A3 surfaced explicitly with the plan; veto path defined |
 
 No Critical or High remain after hardening. **Stop condition met:** 0 Critical, 0 High open.
+
+## Iteration 6 (r4 — guitar 10, bass 15 strings, bass extends upward)
+
+| # | Failure story | Root cause | Sev | Hardening |
+|---|---------------|------------|-----|-----------|
+| F32 | 13th–15th bass strings are silent or crash | `maxStrings = 12`, 12 voices, `activeFrets[12]`; string 13+ indexes past arrays | Critical | A6: all three raised to 15 in S3; I6 sweeps 4–15; I15 plays string 15 |
+| F33 | A 16th string is requested by a future change and collides with MPE channel 1 (master) | Router uses channel 2+s | High | U14 asserts every instrument max ≤ 15; comment at the router |
+| F34 | 15-string fretboard unreadable (≈ 9 px per string in a 160 px panel) | Fixed fretboard height | Medium | S6: fretboard height scales with string count (min 12 px/string, editor grows); O19 at 100/150 % |
+| F35 | 15-note chord steals voices | Voice pool sized for 12 | High | A6: 15 voices; O19 |
+| F36 | Owner meant a different upward layout for big basses (e.g. guitar-standard strings on top) | "Strings tuned to guitar notes" interpreted as continuing fourths | Medium | Surfaced as A4 with a veto path |
+| F37 | G#0 on a 10-string guitar sounds like a click at low refFreq | 23.6 Hz at 400 Hz reference | Medium | U14 ≥ 20 Hz floor; O16 |
+
+No Critical or High remain after hardening. **Stop condition met:** 0 Critical, 0 High open.
