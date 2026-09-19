@@ -8,7 +8,7 @@ Each iteration assumes the plan *as hardened by the previous iteration* was foll
 
 | # | Failure story | Root cause | Sev | Hardening added to PLAN |
 |---|---------------|------------|-----|-------------------------|
-| F1 | Labels on the B string read `C` while it sounds B; in 31-EDO labels disagree with the tuner | Label derived from MIDI note; `openStringMidiNote` ≠ open frequency (C1); `refFreq` ignored (C4) | Critical | §3.1 single source of truth; labels from engine frequency; tests I7, I8 |
+| F1 | Labels on the B string read `C` while it sounds B; in 31-EDO labels disagree with the tuner | Label derived from MIDI note; `openStringMidiNote` ≠ open frequency (C1); `refFreq` ignored (C4) | Critical | §3.1 single source of truth; labels from engine frequency; tests I7, I14, I15 (I8 retired r3) |
 | F2 | Plugin crashes when the fretboard labels 7+ strings | `openStringFrequencies` has 6 entries, slider allows 12 (C2); labels are the first code to call `getFrequency` for every drawn string | Critical | S3 bounds + 12-entry table; test I6 |
 | F3 | Owner types `13`, then QWERTY notes stop playing in Live (or typing never reaches the box) | Host-dependent key routing (R7) | High | Focus released on commit; ▲/▼ + wheel path needs no keyboard; `EDITOR_WANTS_KEYBOARD_FOCUS` unchanged; O3, O4 |
 | F4 | Typing `13` snaps back to `12-TET` | `ComboBoxAttachment` maps only list items (R6) | High | Custom `ParameterAttachment` (§3.3, S5); I2 |
@@ -57,3 +57,17 @@ No new Critical or High failure modes were found. Remaining risks:
 No new Critical or High remain after hardening. Residual risks R-a…R-d unchanged, plus F23/F24 (Medium).
 
 **Stop condition met:** 0 Critical, 0 High open.
+
+## Iteration 5 (r3 — instrument presets, clamped string counts)
+
+| # | Failure story | Root cause | Sev | Hardening |
+|---|---------------|------------|-----|-----------|
+| F25 | Adding a 7th guitar string shifts every label/routing by one string; dots land on the wrong string | String index 0 is now the *added low* string, but some code still assumes index 0 = E2 | High | Old static `openStringMidiNote(int)` deleted (compile error at every stale call site); I15 covers 6→7-string index shift |
+| F26 | Owner drags Strings to 12 on a cello and "nothing happens" | Clamp to 5 is silent | Medium | UI "max N" hint (S5); O15 |
+| F27 | Host automation of `stringCount` beyond the cap plays notes on non-existent strings | Router used the raw parameter | High | Router, engine and UI share the clamped count from one snapshot; I6 (r3) asserts `getNumStrings()` of processor == engine |
+| F28 | Switching instrument mid-phrase leaves stuck voices | Note-off lookup | Medium | `noteToStringMap` path unchanged; O17 |
+| F29 | Violin/cello presets disappoint because they sound plucked | Karplus-Strong is a plucked-string model | Medium | Documented; backlog B8 |
+| F30 | Owner expected a real 5-string viola/cello layout (high E) | Owner's no-higher rule vs common practice | Medium | Surfaced as A3 before S3 |
+| F31 | Reset churn: another tuning clarification invalidates tests again | Tables frozen before the owner saw them | Medium | A1–A3 surfaced explicitly with the plan; veto path defined |
+
+No Critical or High remain after hardening. **Stop condition met:** 0 Critical, 0 High open.

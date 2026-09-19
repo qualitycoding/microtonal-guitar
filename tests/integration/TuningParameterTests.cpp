@@ -1,4 +1,4 @@
-// FROZEN TEST SUITE — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
+// FROZEN TEST SUITE (re-frozen r3: I6 replaced, I8 retired) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
 // JUCE integration tests. Built by the MicroGuitarIntegrationTests console target (plan step S7)
 // and run headless:  MicroGuitarIntegrationTests.exe  (exit code != 0 on any failure).
 // NOTE: compile-unverified at freeze time (JUCE is not available in the planning sandbox);
@@ -116,14 +116,16 @@ public:
             expectEquals (q.getTuningEngine().getCurrentTuningSystem().stepsPerOctave, 13);
         }
 
-        beginTest ("I6 every string count 4..12 yields finite, positive open-string frequencies");
+        beginTest ("I6 (r3) every requested string count yields finite, positive open strings, clamped per instrument");
         {
-            MicroGuitarProcessor p;
+            MicroGuitarProcessor p; // default instrument = Guitar, 4..8 strings (r3)
             for (int n = 4; n <= 12; ++n)
             {
                 setParam (p, "stringCount", (float) n);
-                expectEquals (p.getTuningEngine().getNumStrings(), n);
-                for (int s = 0; s < n; ++s)
+                const int effective = juce::jlimit (4, 8, n);
+                expectEquals (p.getTuningEngine().getNumStrings(), effective);
+                expectEquals (p.getNumStrings(), effective); // router uses the same count (C3)
+                for (int s = 0; s < effective; ++s)
                 {
                     const double f = p.getTuningEngine().getFrequency (s, 0);
                     expect (std::isfinite (f) && f > 0.0, "string " + juce::String (s) + " of " + juce::String (n));
@@ -140,20 +142,8 @@ public:
             expectWithinAbsoluteError (after / before, 432.0 / 440.0, 1e-6);
         }
 
-        beginTest ("I8 open-string MIDI note and open-string frequency are one source of truth");
-        {
-            // Today string 4 is MIDI 60 (C4) for note routing but 246.94 Hz (B3) for pitch.
-            MicroGuitarProcessor p;
-            setParam (p, "stringCount", 12.0f);
-            const int standard[] = { 40, 45, 50, 55, 59, 64 }; // E2 A2 D3 G3 B3 E4
-            for (int s = 0; s < 6; ++s)
-                expectEquals (TuningEngine::openStringMidiNote (s), standard[s]);
-            for (int s = 0; s < 12; ++s)
-            {
-                const double expected = 440.0 * std::pow (2.0, (TuningEngine::openStringMidiNote (s) - 69) / 12.0);
-                expectWithinAbsoluteError (p.getTuningEngine().getFrequency (s, 0), expected, 1e-6);
-            }
-        }
+        // I8 retired in r3 (owner decision: string layout depends on instrument and string count);
+        // superseded by U12-U15 and I13-I16.
     }
 };
 

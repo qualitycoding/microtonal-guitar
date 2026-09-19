@@ -1,7 +1,7 @@
 {
-  "run_id": "gen-20260919T222430Z-fret-note-names-r2",
+  "run_id": "gen-20260919T224047Z-fret-note-names-r3",
   "base_commit": "9644510",
-  "phase": "PLAN_COMPLETE_READY_FOR_S1_PENDING_D5_CONFIRMATION",
+  "phase": "PLAN_COMPLETE_READY_FOR_S1_PENDING_A1_A3_VETO_WINDOW",
   "phases_done": [
     "phase0_capability_check",
     "phase1_branch_and_research",
@@ -15,11 +15,14 @@
     "note": "Planning ran single-agent (Claude Opus 5) in claude.ai; tier labels in PLAN.md are recommendations for executors."
   },
   "decisions": {
-    "D1": "Instrument mode: Guitar=standard EADGBE, Bass=all fourths; open strings stay 12-TET",
+    "D1": "Instrument presets, tuned from lowest string up, real extended-range layouts, never above standard top string (bass 6-string high C3 exception); open strings 12-TET",
     "D2": "refFreq retunes whole instrument",
     "D3": "13b/18b",
     "D4": "accepted",
-    "D5": "ASSUMED: bass extends upward in fourths from E1 (no low B)"
+    "D5": "fifths via presets: Violin/Mandolin, Viola/Mandola, Cello",
+    "A1_assumed": "string limits Guitar 4-8, Bass 4-6, fifths 4-5; param stays 4-12, engine clamps",
+    "A2_assumed": "fewer strings drop the lowest",
+    "A3_assumed": "5-string fifths presets add a low string"
   },
   "last_green_test": null,
   "test_harness_fixes": [],
@@ -28,6 +31,23 @@
     {
       "at": "2026-09-19T22:24Z",
       "reason": "G0 answer to D1 added a new requirement (Instrument mode); protocol re-run from Phase 0 as r2. No r1 frozen test found invalid."
+    },
+    {
+      "at": "2026-09-19T22:40Z",
+      "reason": "Owner clarification ('4ths from low up', real extended-range layouts, no strings above standard top, fifths presets) invalidated frozen I8 and r2 I9-I12/O11-O13. Reset Rule applied; re-run from Phase 0 as r3.",
+      "retired": [
+        "I8",
+        "I9",
+        "I10",
+        "I11",
+        "I12",
+        "O11",
+        "O12",
+        "O13"
+      ],
+      "replaced": [
+        "I6"
+      ]
     }
   ],
   "frozen_hashes_file": "tests/FROZEN.sha256",
@@ -38,5 +58,5 @@
     "compiler": "MSVC x64 (VS 2022)"
   },
   "resume_instructions": "Verify hashes (sha256sum -c tests/FROZEN.sha256), check out the head of this branch, continue at phase.",
-  "previous_run": "gen-20260919T204211Z-fret-note-names"
+  "previous_run": "gen-20260919T222430Z-fret-note-names-r2"
 }

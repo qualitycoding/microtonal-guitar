@@ -96,3 +96,18 @@ Repo fact: `CMakeLists.txt:26` sets `EDITOR_WANTS_KEYBOARD_FOCUS FALSE`.
   all-fourths but changes where the lowest string sits → plan decision D5 / backlog B6.
 - Guitar standard tuning E2 A2 D3 G3 B3 E4 (MIDI 40 45 50 55 59 64) has a major third between G and B,
   so "guitar" and "all fourths" differ only on strings 5 and above.
+
+## F. Instrument presets (added in r3)
+
+**R10. "Standard tuning"**, Wikipedia <https://en.wikipedia.org/wiki/Standard_tuning> (retrieved 2026-09-19):
+violin G3 D4 A4 E5; viola C3 G3 D4 A4; cello C2 G2 D3 A3 (all ascending fifths); mandolin = violin tuning;
+mandola = viola tuning; 7-string guitar = standard plus low B1; 5-string bass adds low B0, 6-string bass adds
+low B0 and high C3 (matches the owner's statement).
+
+**R11. 8-string guitar**, Sweetwater <https://www.sweetwater.com/sweetcare/articles/8-string-guitar-tuning-guide/>
+and Strandberg <https://strandbergguitars.com/7-and-8-string-guitar-tunings-with-strandberg->: standard is
+F# B E A D G B E (low B then low F#, each a fourth down).
+
+**Not found / rule-derived:** no standard source was located for 9+-string guitars, 7+-string basses, or
+5-string violin-family layouts that add a *low* string; those are either capped (A1) or derived from the
+owner's rule (A3) and marked RULE in U12.
