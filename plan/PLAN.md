@@ -33,7 +33,7 @@ Branch `gen-20260919T224942Z-fret-note-names-r4` (revision r4; history: r3 `gen-
 | A2 | Fewer strings | **Agreed**: drop the lowest | U12 |
 | A3 | Adding strings | **Agreed** for high-register instruments (guitar, fifths presets: add below only). **Bass may extend upward** | U12, U14 |
 
-### Applied by rule — owner may veto before S3 (veto = Reset Rule)
+### Applied by rule — **agreed by owner 2026-09-19** (gate G0 closed)
 | ID | Choice made | Why |
 |----|-------------|-----|
 | A4 | Bass layout for n strings, all fourths from the lowest string up: 4 = E1…G2; 5–7 start at low B0 (5 BEADG, 6 +C3, 7 +F3); 8+ start at low F#0 and add strings **upward**: 8 = F#0…F3, 9 = …Bb3, 15 = F#0…E6 | 5/6-string rows match published layouts, 7/8 match common practice (not source-verified); below F#0 strings fall under ~20 Hz, so growth beyond 8 goes up. 15 strings ends on E6, the guitar's top note at the 24th fret |
