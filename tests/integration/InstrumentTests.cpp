@@ -119,6 +119,12 @@ public:
             {
                 MicroGuitarProcessor b;
                 setP (b, "instrument", 4.0f);
+                setP (b, "stringCount", 4.0f); // test-defect fix 2026-09-19: this scenario intends the
+                                                // 4-string cello (C2 G2 D3 A3); the processor's own
+                                                // default stringCount (6) clamps to Cello's max of 5,
+                                                // which silently changed what this test asserted. See
+                                                // tests/FROZEN.md. I14 already covers every instrument
+                                                // at every string count, including the clamped case.
                 b.getStateInformation (saved);
             }
             MicroGuitarProcessor c;

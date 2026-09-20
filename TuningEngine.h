@@ -3,28 +3,29 @@
 #include <cmath>
 #include <mutex>
 
-class TuningEngine 
+class TuningEngine
 {
 public:
     TuningEngine();
     ~TuningEngine() = default;
 
-    void setGuitarState(const GuitarState& newState);
-    double getFrequency(int stringIndex, int fretNumber) const;
+    // MPE lower zone has 15 usable member channels (2-16); string s is routed on channel 2+s, so
+    // this is the hard ceiling on string count for every instrument (see plan §3.1 / A6). Shared by
+    // PluginProcessor (voice count, activeFrets) and MicrotonalVoice (clamping the incoming channel).
+    static constexpr int kMaxStrings = 15;
+
+    void setGuitarState (const GuitarState& newState);
+    double getFrequency (int stringIndex, int fretNumber) const;
 
     // Thread-safe snapshots - safe to call from the UI thread while
     // parameter changes update state from the audio thread.
     TuningSystem getCurrentTuningSystem() const;
     int getNumStrings() const;
+    int getOpenStringMidiNote (int stringIndex) const; // -1 if stringIndex is out of range
+    GuitarState getSnapshot() const;                   // one copy under one lock, for UI painting
 
-    static TuningSystem create12TET();
-    static TuningSystem create24TET();
-    static TuningSystem create31EDO();
+    static TuningSystem createEdo (int stepsPerOctave);
     static TuningSystem create5LimitJust();
-
-    // Single source of truth for the open-string MIDI approximation, used by
-    // the voice, the processor's note tracking, and the UI alike.
-    static int openStringMidiNote (int stringIndex) { return 40 + stringIndex * 5; }
 
 private:
     GuitarState state;

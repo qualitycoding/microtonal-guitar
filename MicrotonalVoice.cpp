@@ -3,7 +3,8 @@
 void MicrotonalVoice::noteStarted()
 {
     // Store the string index atomically
-    currentStringIndex.store(juce::jlimit(0, 11, (int) currentlyPlayingNote.midiChannel - 2));
+    currentStringIndex.store (juce::jlimit (0, TuningEngine::kMaxStrings - 1,
+                                             (int) currentlyPlayingNote.midiChannel - 2));
 
     currentSampleRate = getSampleRate();
     level = currentlyPlayingNote.noteOnVelocity.asUnsignedFloat();
@@ -23,13 +24,16 @@ void MicrotonalVoice::noteStarted()
 
 void MicrotonalVoice::updateFrequency()
 {
-    int midiNote = currentlyPlayingNote.initialNote;
-    int openNoteMidi = TuningEngine::openStringMidiNote(currentStringIndex);
-    int fretNumber = std::max(0, midiNote - openNoteMidi);
+    const int stringIndex = currentStringIndex.load();
+    const int midiNote = currentlyPlayingNote.initialNote;
+    // Reads the same per-string MIDI table the router and the UI use (TuningStructures.h), so a
+    // fret computed here always matches what's shown and what routeed the note to this string.
+    const int openNoteMidi = tuningEngine->getOpenStringMidiNote (stringIndex);
+    const int fretNumber = std::max (0, midiNote - (openNoteMidi >= 0 ? openNoteMidi : midiNote));
 
     currentFretNumber.store(fretNumber);   // <-- this was missing; it's what getFretNumber() actually returns
 
-    double targetFreq = tuningEngine->getFrequency(currentStringIndex, fretNumber);
+    double targetFreq = tuningEngine->getFrequency (stringIndex, fretNumber);
     double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
     targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
 
