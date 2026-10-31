@@ -1,7 +1,7 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 4,
+  "sequence": 5,
   "profiles": [
     "software"
   ],
@@ -109,6 +109,6 @@
     "K-20261031T195100Z-juce-path-hardcoded",
     "K-20261031T195200Z-stringcount-param-inert"
   ],
-  "updated_at": "2026-10-31T19:55:00Z",
-  "scratchpad": "All addendum steps green. Correction recorded: prior gen branch discovered via ls-remote; REVIEW.md rewritten; lesson L-...54Z. Push blocked (no creds) -> bundle fallback."
+  "updated_at": "2026-10-31T19:57:00Z",
+  "scratchpad": "All addendum steps green. Review corrected for prior gen branch. Push landed on 2nd attempt after owner-supplied credential (D-4 supersedes bundle fallback); ls-remote verified."
 }

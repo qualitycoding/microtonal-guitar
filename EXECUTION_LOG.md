@@ -19,3 +19,4 @@ Note on "blocked→fallback": a blocked push with an executed, verified fallback
 pre-decided completion path (D-ADD-004), not a swallowed failure — the blocked status is reported
 here and in DEVIATIONS.md.
 | 2026-10-31T19:54 | review-correction | 1 | pass | — | ls-remote revealed prior gen branch r4; REVIEW.md headline + G-1/G-2 corrected; lesson L-...54Z recorded (Rule 11) |
+| 2026-10-31T19:57 | S-ADD-006 | 2 | pass | b301c9a.. | Credential supplied by owner; push landed; ls-remote confirms remote HEAD == local HEAD |
