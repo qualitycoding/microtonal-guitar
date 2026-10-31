@@ -18,3 +18,4 @@ One line per step attempt (S-000 convention; addendum steps S-ADD-###). UTC.
 Note on "blocked→fallback": a blocked push with an executed, verified fallback bundle is the
 pre-decided completion path (D-ADD-004), not a swallowed failure — the blocked status is reported
 here and in DEVIATIONS.md.
+| 2026-10-31T19:54 | review-correction | 1 | pass | — | ls-remote revealed prior gen branch r4; REVIEW.md headline + G-1/G-2 corrected; lesson L-...54Z recorded (Rule 11) |

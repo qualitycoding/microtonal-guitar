@@ -1,8 +1,10 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 3,
-  "profiles": ["software"],
+  "sequence": 4,
+  "profiles": [
+    "software"
+  ],
   "mode_flags": {},
   "phase": "3.7",
   "subphase": "implementation-of-addendum",
@@ -11,9 +13,22 @@
   "exploration_round": 0,
   "proof_review_round": 0,
   "premortem_round": 0,
-  "completed": ["S-ADD-001", "S-ADD-002", "S-ADD-003", "S-ADD-004", "S-ADD-005"],
-  "pending": ["S-ADD-006", "S-ADD-007"],
-  "not_applicable": ["2A math", "2C figures", "2D manuscript", "OPERATIONS.md (no deploy)"],
+  "completed": [
+    "S-ADD-001",
+    "S-ADD-002",
+    "S-ADD-003",
+    "S-ADD-004",
+    "S-ADD-005",
+    "S-ADD-006",
+    "S-ADD-007"
+  ],
+  "pending": [],
+  "not_applicable": [
+    "2A math",
+    "2C figures",
+    "2D manuscript",
+    "OPERATIONS.md (no deploy)"
+  ],
   "artifacts": {
     "REVIEW.md": "pending-hash-at-commit",
     "ADDENDUM-PLAN.md": "pending-hash-at-commit",
@@ -36,8 +51,16 @@
   },
   "execution_context": {
     "current_objective": "Implement ADDENDUM-PLAN.md steps S-ADD-001..S-ADD-007 on the generation branch",
-    "call_stack": ["S-ADD-006 push cadence"],
-    "step_pointer": { "phase": "3.7", "subphase": "S-ADD-006", "item_index": 0, "sub_action": "commit-chunks-push-verify-bundle-fallback", "retry_count": 0 },
+    "call_stack": [
+      "S-ADD-006 push cadence"
+    ],
+    "step_pointer": {
+      "phase": "3.7",
+      "subphase": "S-ADD-006",
+      "item_index": 0,
+      "sub_action": "commit-chunks-push-verify-bundle-fallback",
+      "retry_count": 0
+    },
     "scratchpad": "Repo reviewed vs protocol v3.6 (REVIEW.md, findings G-1..G-10). Addendum plan written for v3.6-added steps. Spikes run green (tuning_engine ALL PASS; currentNumStrings static evidence captured). Remaining: lessons/knowledge items, EXECUTION_LOG, DEVIATIONS, commit+push attempt+ls-remote+bundle.",
     "in_flight_operation": null,
     "tool_cache": {}
@@ -45,12 +68,20 @@
   "active_variables": {
     "intake_parameters": {
       "goal": "Review microtonal-guitar against updated planning protocol; addendum-plan the new steps; implement them",
-      "profiles": ["software"],
+      "profiles": [
+        "software"
+      ],
       "knowledge_store": "qualitycoding/knowledge (404 at intake; R0 loads nothing)"
     },
-    "user_constraints": ["addendum scope only; full protocol run out of scope"],
-    "open_questions": ["CI job name for the environment-blocked JUCE build dimension (deferred to a full-protocol run)"],
-    "resolved_questions": ["environment class = ephemeral"],
+    "user_constraints": [
+      "addendum scope only; full protocol run out of scope"
+    ],
+    "open_questions": [
+      "CI job name for the environment-blocked JUCE build dimension (deferred to a full-protocol run)"
+    ],
+    "resolved_questions": [
+      "environment class = ephemeral"
+    ],
     "candidate_decisions": [],
     "uncommitted_drafts": {},
     "variable_store": {
@@ -61,10 +92,23 @@
     }
   },
   "tier_substitutions": [],
-  "open_items": ["G-1..G-10 from REVIEW.md carry to a future full-protocol run"],
-  "knowledge_store": { "location": "qualitycoding/knowledge", "commit_read": null, "readable": false },
+  "open_items": [
+    "G-1..G-10 from REVIEW.md carry to a future full-protocol run"
+  ],
+  "knowledge_store": {
+    "location": "qualitycoding/knowledge",
+    "commit_read": null,
+    "readable": false
+  },
   "lessons_loaded": [],
-  "lessons_recorded": ["L-20261031T195000Z-fuse-mount-exec-bits"],
-  "knowledge_added": ["K-20261031T195100Z-juce-path-hardcoded", "K-20261031T195200Z-stringcount-param-inert"],
-  "updated_at": "2026-10-31T19:50:00Z"
+  "lessons_recorded": [
+    "L-20261031T195000Z-fuse-mount-exec-bits",
+    "L-20261031T195400Z-check-remote-branches"
+  ],
+  "knowledge_added": [
+    "K-20261031T195100Z-juce-path-hardcoded",
+    "K-20261031T195200Z-stringcount-param-inert"
+  ],
+  "updated_at": "2026-10-31T19:55:00Z",
+  "scratchpad": "All addendum steps green. Correction recorded: prior gen branch discovered via ls-remote; REVIEW.md rewritten; lesson L-...54Z. Push blocked (no creds) -> bundle fallback."
 }

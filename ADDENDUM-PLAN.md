@@ -1,6 +1,10 @@
 # Addendum plan — steps added to the planning protocol in v3.6
 
-Base plan: none (the repository predates the protocol; see `REVIEW.md` for the full gap list).
+Base plan: none on `main`; note that a **prior, unmerged generation branch from an earlier
+protocol version exists remotely** (`gen-20260919T224942Z-fret-note-names-r4`, executed through
+S1–S7) — see `REVIEW.md` headline. This addendum is based on `main` and does not modify that
+branch; if that plan is ever resumed, it must be re-planned under v3.6 and this addendum's steps
+folded in.
 This addendum implements **only the steps introduced by the v3.5 → v3.6 protocol update**
 (Round 6 in `planning-protocol-review.md`):
 
