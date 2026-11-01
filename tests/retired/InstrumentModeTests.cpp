@@ -8,7 +8,8 @@
 // The one-argument overload (used by frozen test I8) must equal the Guitar table.
 // Compile-unverified at freeze; harness-only fixes per PLAN S4.
 
-#include <JuceHeader.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
 #include <cmath>
 

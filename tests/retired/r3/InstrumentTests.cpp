@@ -1,7 +1,8 @@
 // FROZEN TEST SUITE (r3) — see tests/FROZEN.md. Implementers must not edit, skip or weaken.
 // Instrument presets: parameter, engine, routing and state. Tables come from mtg::openStringMidiNotes
 // (pinned independently by unit tests U12-U15). Compile-unverified at freeze; harness-only fixes per PLAN S4.
-#include <JuceHeader.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
 #include "Instruments.h"
 #include <cmath>
