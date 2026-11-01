@@ -33,7 +33,7 @@ regenerating `FROZEN.sha256`; the manifest check therefore failed on `main` itse
 are re-frozen at their current (correct) hashes. (b) New suites appended: `tests/boundary/`
 (U-B1–U-B4, issue #5), `tests/tuning_engine/` (issue #4 lock-free + #5 guard), integration
 `VoiceGuardAndPitchTests.cpp` (I-B1, I-A4) and its `CMakeLists.txt`. `FROZEN.sha256` regenerated;
-all 18 entries verify. Filed as regression issue #11 (stale manifest was a process miss against
+all 18 entries verify. Filed as regression issue #19 (stale manifest was a process miss against
 issue #1's acceptance).
 
 ## Implementation-time test-defect fix (2026-09-19, during S1-S6)

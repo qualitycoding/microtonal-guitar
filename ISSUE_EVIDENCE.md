@@ -64,4 +64,4 @@ hidden in #5 (D-007) — the writer mutex is documented as UI-side only.
 
 ## S-090 update
 
-See `EXECUTION_LOG.md`. Regression issue for the stale r4 manifest filed as #11.
+See `EXECUTION_LOG.md`. Regression issue for the stale r4 manifest filed as #19.
