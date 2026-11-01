@@ -1,3 +1,5 @@
+# PLAN — protocol v3.9 (upgraded by ADDENDUM-PLAN-V3.9.md)
+
 # Execution plan — fret note names & free-entry "notes per octave"
 
 Branch `gen-20260919T224942Z-fret-note-names-r4` (revision r4; history: r3 `gen-20260919T224047Z-fret-note-names-r3`, r1 `gen-20260919T204211Z-fret-note-names`, r2 `gen-20260919T222430Z-fret-note-names-r2`) · base `9644510` · status: **PLAN ONLY — not executed**
@@ -135,3 +137,12 @@ frozen tests, re-run the full suite. ✔ `phase: done`
   excitation — the Karplus-Strong voice makes violin/cello sound plucked (pizzicato).
 
 See `plan/PREMORTEM.md` for the failure analysis that shaped §3–§5.
+
+
+## Amendment closing/review steps (v3.9)
+
+- **S-000** — Intake and environment probe (recorded at plan intake).
+- **S-REVIEW** — Traditional code review before packaging/release.
+- **S-ADVERSARIAL** — Adversarial review of security/correctness claims.
+- **S-RETRO** — Retrospective: review execution log, deviations and gate records.
+- **S-KNOW** — Knowledge/lessons: record classified lessons and knowledge items; G-003 controls publication to the Lessons and knowledge stores.
