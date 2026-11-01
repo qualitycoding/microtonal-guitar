@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // NoteNaming.cpp — ups-and-downs note spelling for arbitrary EDOs, plus frequency-to-name lookup.
 // Implements the contract frozen at plan/api/NoteNaming.h and the spelling rule in plan/PLAN.md §3.2.
 // No JUCE dependency; unit-tested by tests/unit/test_note_naming.cpp (do not edit that file).

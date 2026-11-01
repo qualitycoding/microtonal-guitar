@@ -107,3 +107,41 @@ jobs:
             build/**/MicroGuitar.exe
             build/**/MicroGuitar.app/**
           if-no-files-found: error
+
+  # --- Release channel (issue #9): a pushed v* tag becomes a GitHub Release carrying the
+  #     three platform artifacts. Untagged pushes keep producing CI artifacts only. ---
+  release:
+    name: release (tagged only)
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: plugin
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Post-condition — all three platform artifacts present and non-empty
+        run: |
+          for os in windows-2022 ubuntu-22.04 macos-14; do
+            d="release-assets/MicroGuitar-$os"
+            test -d "$d" || { echo "FAIL: missing artifact dir $d"; exit 1; }
+            test -n "$(find "$d" -type f -print -quit)" || { echo "FAIL: empty artifact dir $d"; exit 1; }
+          done
+
+      - name: Package per-platform zips
+        run: |
+          cd release-assets
+          for os in windows-2022 ubuntu-22.04 macos-14; do
+            zip -qry "MicroGuitar-${{ github.ref_name }}-$os.zip" "MicroGuitar-$os"
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*.zip
+          generate_release_notes: true
