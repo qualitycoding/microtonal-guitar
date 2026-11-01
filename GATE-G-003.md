@@ -14,8 +14,8 @@ lessons/knowledge store without owner sign-off.
 2. `knowledge/K-20261101T-frozen-manifest-refreeze.md` — frozen test manifests must be re-frozen in the same PR that changes frozen files; recommend a CI manifest-check job.
 
 ## Requested decision (pick one)
-- [ ] Push the four items above to the `proposed/` area of the lessons/knowledge store (state the target repo/path).
+- [x] **Owner decision 2026-11-02: push lessons to `qualitycoding/Lessons` and knowledge items to `qualitycoding/knowledge`.** Executed below.
 - [ ] Push to an alternate target: __________
 - [ ] Do not push; keep them in-repo only.
 
-No push will be performed until a selection is made.
+Executed 2026-11-02 per owner instruction: lessons copied to `qualitycoding/Lessons` `lessons/tech-juce/` (commits 3791b71, acf40b9; schema-valid; index rebuilt, 277 entries) and knowledge items to `qualitycoding/knowledge` `knowledge/guard-seam-pattern/` + `knowledge/frozen-test-manifest/` (commit 3e8f494; schema-valid; index rebuilt, 402 entries). Both pushes verified via ls-remote. In-repo copies updated to the same schema.
