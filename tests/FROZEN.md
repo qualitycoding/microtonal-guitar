@@ -72,3 +72,14 @@ S8-S9 (release build in Ableton/Windows, manual operational tests): out of scope
 no Windows/MSVC toolchain or Ableton Live is available here. The plugin's own CMakeLists.txt is
 updated with the new source files so a Windows build can proceed following the project's existing
 build learnings.
+
+Revision r6 (2026-11-02, branch `fix/main-completion`, post-merge of PR #14):
+the r5 freeze of `tests/integration/CMakeLists.txt` was wrong from the start — it
+recorded the hash of the pre-fix (c476170) working-tree copy, not the content
+committed at 72a59c1; and commit 703eb39 later changed the file again (the CI
+link fix that adds PluginEditor.cpp to the integration harness, proven by the
+green integration job on main) without re-freezing. Two process misses against
+issue #19. Re-frozen at r6: the recorded entry now matches the CI-proven content
+on main (fe1a8c12...). Root cause of the stale-hash capture: the freeze was
+computed from a working tree that still held the old copy of the file — always
+`git stash`-free clean checkout or `git show HEAD:<file>` when freezing.

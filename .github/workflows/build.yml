@@ -54,6 +54,9 @@ jobs:
       - name: Post-condition — boundary test binary exists and is non-empty
         run: test -x build-bd/voice_frequency_guard_tests && test -s build-bd/voice_frequency_guard_tests
 
+      - name: Frozen manifest check (tests/FROZEN.sha256, r6)
+        run: sha256sum -c tests/FROZEN.sha256
+
   # --- JUCE integration tests (frozen I1–I7, I13–I16 + remediation I-B1, I-A4): headless
   #     console harness rendering real audio through MicroGuitarProcessor (issue #1/#5/#7) ---
   integration-tests:
