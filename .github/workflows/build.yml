@@ -30,6 +30,18 @@ jobs:
       - name: Post-condition — test binary exists and is non-empty
         run: test -x build-tests/note_naming_tests && test -s build-tests/note_naming_tests
 
+      - name: Configure TuningEngine tests (lock-free read path, issue #4)
+        run: cmake -S tests/tuning_engine -B build-te -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build TuningEngine tests
+        run: cmake --build build-te --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Run TuningEngine tests
+        run: ctest --test-dir build-te --output-on-failure
+
+      - name: Post-condition — TuningEngine test binary exists and is non-empty
+        run: test -x build-te/tuning_engine_tests && test -s build-te/tuning_engine_tests
+
   # --- Plugin binaries: VST3 + Standalone for Windows, Linux, macOS ---
   plugin:
     name: plugin (${{ matrix.os }})
