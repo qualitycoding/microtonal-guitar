@@ -1,0 +1,17 @@
+RED EVIDENCE — U-B1..U-B4 against the unguarded baseline (plan S-020)
+====================================================================
+Baseline: main @ 504f5a93eeb081ac78776ef74b91142fe6307ef4 (worktree /tmp/mgmain).
+Tests: tests/boundary/test_voice_frequency_guards.cpp (committed on this branch).
+
+Run (2026-11-01, sandbox):
+    cmake -S tests/boundary -B build-bd-red -G Ninja
+    cmake --build build-bd-red
+
+Result: BUILD FAILED (red) — the intended reason:
+    test_voice_frequency_guards.cpp:9:10: fatal error: FrequencyGuard.h: No such file or directory
+    compilation terminated.
+
+The baseline has no validation seam at all: MicrotonalVoice::updateFrequency() divides
+currentSampleRate by targetFreq with no guard (TuningEngine::getFrequency returns 0.0 for an
+out-of-range string index), so the delay length becomes inf and renderNextBlock's `<= 0.0`
+check cannot catch it. Runtime NaN evidence: integration test I-B1 (see its RED evidence below).

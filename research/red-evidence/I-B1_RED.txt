@@ -1,0 +1,19 @@
+RED EVIDENCE — I-B1 against the unguarded baseline (plan S-020)
+==============================================================
+Baseline: main @ 504f5a93eeb081ac78776ef74b91142fe6307ef4 (worktree /tmp/mgmain),
+plus the new tests/integration/{CMakeLists.txt,VoiceGuardAndPitchTests.cpp} copied in.
+JUCE 9.0.4 (pinned), FetchContent override FETCHCONTENT_SOURCE_DIR_JUCE.
+
+Build (Release, ninja): see CI/local logs; completes with all modules.
+
+Run:
+    ctest --test-dir build-it-red --output-on-failure
+
+Result (red, the intended reason):
+    I-B1 held note survives string-count shrink (issue #5: finite output, recovery)
+    FAIL: renderBlocks returned false — a non-finite sample reached the output
+    (old updateFrequency: currentDelayLength = currentSampleRate / targetFreq with
+    targetFreq == 0.0 -> +inf; readPosition becomes NaN; output NaN)
+
+I-A4 (refFreq audible pitch ratio) is new coverage for CLOSED issue #7; it passes on the
+baseline as expected (no red required — #7's fix is already on main).
