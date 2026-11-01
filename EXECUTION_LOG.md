@@ -37,3 +37,5 @@ here and in DEVIATIONS.md.
 | 2026-11-01T14:15 | re-freeze | 1 | pass | this | r5: manifest was stale on main for 3 integration files (harness-only include deltas verified); regenerated (18 entries, all verify); new suites appended |
 | 2026-11-01T14:20 | ci | 1 | pass | this | CI: boundary suite added to unit-tests job; new mandatory integration-tests job (ubuntu); plugin matrix now needs integration-tests |
 | 2026-11-01T20:30 | S-060 ci | — | pass (with D-13) | unit-tests ✓, integration-tests ✓, plugin ubuntu ✓ windows ✓; macos-14 label retired (D-13) → macos-15 probe run 41345985475 provisions normally; matrix updated to macos-15 in 5a47f59 | run 41344719675 (913a739), probe 41345985475 |
+| S-ADD-000 | 1 | pass | `d5b3e25cc5f2` || S-ADD-001 | 1 | pass | `e4f520113580` || S-ADD-060 | 1 | pass | `8c8f3c235d73` || S-ADD-070 | 1 | pass | `8c8f3c235d73` || S-ADD-080 | 1 | pass | `8c8f3c235d73` || S-ADD-090 | 1 | pass | verifier run below |
+| S-ADD-100 | 1 | pass | remote `8c8f3c235d73` verified |
