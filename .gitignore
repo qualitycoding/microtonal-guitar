@@ -5,3 +5,5 @@ build.txt
 build/
 openrouter api key.txt
 out/
+build-*/
+obj-cache/
