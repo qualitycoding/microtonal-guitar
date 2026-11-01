@@ -1,0 +1,7 @@
+$ grep -rn 'currentNumStrings' *.cpp *.h
+PluginProcessor.cpp:114:    const int numStrings = currentNumStrings.load();
+PluginProcessor.h:53:    int getNumStrings() const { return currentNumStrings.load(); }
+PluginProcessor.h:67:    std::atomic<int> currentNumStrings { 6 };
+
+$ grep -rn 'currentNumStrings.store' *.cpp *.h || echo 'NO STORE SITES FOUND -> atomic is never updated (REVIEW.md G-4)'
+NO STORE SITES FOUND -> atomic is never updated (REVIEW.md G-4)

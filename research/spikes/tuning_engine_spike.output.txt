@@ -1,0 +1,7 @@
+pass 12TET octave (164.820000)
+pass 12TET fifth (123.475486)
+pass 24TET 2 frets (87.310354)
+pass 5limit fifth (123.615000)
+pass 31EDO octave (164.820000)
+pass invalid index (0.000000)
+SPIKE RESULT: ALL PASS
