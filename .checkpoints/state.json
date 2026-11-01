@@ -1,7 +1,7 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 8,
+  "sequence": 9,
   "profiles": [
     "software"
   ],
@@ -112,6 +112,6 @@
     "K-20261031T195200Z-stringcount-param-inert",
     "K-20261031T201500Z-portable-juce-fetchcontent"
   ],
-  "updated_at": "2026-10-31T20:45:00Z",
-  "scratchpad": "G-3 CLOSED. CI run 41304527785: 4/4 jobs success; VST3+Standalone artifacts published for Windows/Linux/macOS (6.7-9.8MB each). One CI lesson recorded (Git Bash dir st_size). Branch pushed and verified."
+  "updated_at": "2026-10-31T20:50:00Z",
+  "scratchpad": "Issues #1-#10 filed for all outstanding findings (G-1,G-2,G-4..G-10 + stale-branch decision). Severity labels created. G-3 closed, no issue."
 }
