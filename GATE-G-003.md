@@ -18,4 +18,4 @@ lessons/knowledge store without owner sign-off.
 - [ ] Push to an alternate target: __________
 - [ ] Do not push; keep them in-repo only.
 
-Executed 2026-11-02: both lessons copied to `Lessons/lessons/tech-juce/` and both knowledge items to `knowledge/knowledge/` topic dirs, indexes regenerated via scripts/build_index.py.
+Executed 2026-11-02 per owner instruction: lessons copied to `qualitycoding/Lessons` `lessons/tech-juce/` (commits 3791b71, acf40b9; schema-valid; index rebuilt, 277 entries) and knowledge items to `qualitycoding/knowledge` `knowledge/guard-seam-pattern/` + `knowledge/frozen-test-manifest/` (commit 3e8f494; schema-valid; index rebuilt, 402 entries). Both pushes verified via ls-remote. In-repo copies updated to the same schema.
