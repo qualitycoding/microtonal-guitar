@@ -36,10 +36,8 @@ MicroGuitarProcessor::~MicroGuitarProcessor()
     apvts.removeParameterListener ("instrument", this);
     apvts.removeParameterListener ("tuningMode", this);
     apvts.removeParameterListener ("edoSteps", this);
-    apvts.removeParameterListener ("musicalKey", this); // pre-existing gap (backlog B2): this listener
-                                                          // was never added in the constructor, so the
-                                                          // musicalKey dropdown has no effect; out of
-                                                          // scope for this change, left as found.
+    // No "musicalKey" removal here: that listener is deliberately not registered (the parameter is
+    // unwired, backlog B2), and removing a listener that was never added is misleading residue.
 }
 
 void MicroGuitarProcessor::parameterChanged (const juce::String& parameterID, float newValue)
