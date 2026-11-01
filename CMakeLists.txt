@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.22)
-project(MicroGuitar VERSION 1.0.0)
+
+# Single source of truth for the release version (issue #9): the VERSION file at the
+# repo root. Scheme: semantic versioning (MAJOR.MINOR.PATCH), tagged as vX.Y.Z; CI
+# publishes a GitHub Release from v* tags. Anything not from a tag is a dev build.
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MG_VERSION LIMIT_COUNT 1)
+string(STRIP "${MG_VERSION}" MG_VERSION)
+if(NOT MG_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    message(FATAL_ERROR "VERSION must contain a single MAJOR.MINOR.PATCH line, got '${MG_VERSION}'")
+endif()
+project(MicroGuitar VERSION ${MG_VERSION})
 
 # --- VST2 stays off (unchanged intent) ---
 set(JUCE_BUILD_VST2 OFF CACHE BOOL "Disable building VST2 support in JUCE")
@@ -51,7 +60,8 @@ juce_add_plugin(MicroGuitar
     PLUGIN_MANUFACTURER_CODE GaHq
     PLUGIN_CODE MicG
     FORMATS VST3 Standalone
-    PRODUCT_NAME "MicroGuitar")
+    PRODUCT_NAME "MicroGuitar"
+    VERSION ${MG_VERSION})
 
 # --- Sources ---
 target_sources(MicroGuitar

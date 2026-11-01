@@ -51,6 +51,12 @@ When a note is played, the `MicrotonalVoice` generates a short noise excitation 
 
 See `plan/PLAN.md`, `plan/PREMORTEM.md` and `research/RESEARCH_LOG.md` for the full design history, citations and risk analysis behind these features.
 
+### Versioning and releases
+
+The release version lives in a single place: the `VERSION` file at the repo root (`MAJOR.MINOR.PATCH`, semver). CMake reads it into the project version and passes it to the plugin binaries, so the VST3/Standalone builds always report the same version as the tag they were built from.
+
+Release channel: every push to `main` (and every PR) produces CI build artifacts for Windows, Linux and macOS — those are dev/nightly binaries. Pushing a tag of the form `vX.Y.Z` additionally runs a `release` CI job that collects the three platform artifacts and publishes a GitHub Release with per-platform zips and auto-generated notes. To cut a release: set `VERSION` to the new number, commit, tag `vX.Y.Z` at that commit and push the tag.
+
 ---
 
 

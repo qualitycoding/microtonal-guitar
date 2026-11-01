@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // FROZEN INTERFACE CONTRACT (r3) for tests U12-U15 and I13-I17. Pure C++17, no JUCE.
 // Implement in Instruments.cpp at repo root.
 #pragma once

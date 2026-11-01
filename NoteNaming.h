@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // FROZEN INTERFACE CONTRACT for the tests in tests/unit. Implementers copy this to
 // Source/NoteNaming.h (repo root today) and implement it in NoteNaming.cpp.
 // Pure C++17, no JUCE dependency, so it is unit-testable without a plugin host.

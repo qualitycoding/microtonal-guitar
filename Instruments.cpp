@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Instruments.cpp — per-instrument open-string layouts.
 // Implements the contract frozen at plan/api/Instruments.h. No JUCE dependency;
 // unit-tested by tests/unit/test_instruments.cpp (do not edit that file).
