@@ -1,0 +1,103 @@
+{
+  "run_id": "gen-20260919T224942Z-fret-note-names-r4",
+  "base_commit": "9644510",
+  "phase": "S1_S7_IMPLEMENTED_S8_S9_OUT_OF_SCOPE_HERE",
+  "phases_done": [
+    "phase0_capability_check",
+    "phase1_branch_and_research",
+    "phase2_tests_frozen",
+    "phase3_plan",
+    "phase4_premortem_x3",
+    "phase5_commit",
+    "G0_owner_decisions",
+    "S1_note_naming_impl_verified",
+    "S2_instruments_impl_verified",
+    "S3_engine_processor_impl",
+    "S4_integration_tests_real_juce_13_of_13_green",
+    "S5_edocontrol_impl",
+    "S6_editor_impl_compiled_not_visually_verified",
+    "S7_readme"
+  ],
+  "phase0": {
+    "subagents_available": false,
+    "note": "Planning ran single-agent (Claude Opus 5) in claude.ai; tier labels in PLAN.md are recommendations for executors."
+  },
+  "decisions": {
+    "D1": "Instrument presets, tuned from lowest string up, real extended-range layouts, never above standard top string (bass 6-string high C3 exception); open strings 12-TET",
+    "D2": "refFreq retunes whole instrument",
+    "D3": "13b/18b",
+    "D4": "accepted",
+    "D5": "fifths via presets: Violin/Mandolin, Viola/Mandola, Cello",
+    "A1": "guitar 4-10, bass 4-15, fifths 4-5; stringCount param 4-15",
+    "A2": "agreed: drop lowest",
+    "A3": "agreed for high-register instruments; bass may extend upward",
+    "A4": "agreed by owner 2026-09-19: bass all fourths from lowest up: 4=E1..G2; 5-7 from B0; 8+ from F#0 extending upward (15 = F#0..E6)",
+    "A5": "agreed by owner 2026-09-19: guitar 9 +C#1, 10 +G#0",
+    "A6": "agreed by owner 2026-09-19: 15 strings = MPE channel ceiling; maxStrings/voices/activeFrets -> 15"
+  },
+  "last_green_test": null,
+  "test_harness_fixes": [
+    {
+      "file": "tests/integration/InstrumentTests.cpp",
+      "what": "I16: pinned stringCount=4 for the Cello round-trip case (was unset, defaulted to 6, clamped to Cello's max of 5)",
+      "why": "test-authoring bug, not a spec/assertion disagreement; U12-U15 and I14 already pin the correct Cello tables",
+      "at": "2026-09-19"
+    }
+  ],
+  "operational_results": {},
+  "reset_log": [
+    {
+      "at": "2026-09-19T22:24Z",
+      "reason": "G0 answer to D1 added a new requirement (Instrument mode); protocol re-run from Phase 0 as r2. No r1 frozen test found invalid."
+    },
+    {
+      "at": "2026-09-19T22:40Z",
+      "reason": "Owner clarification ('4ths from low up', real extended-range layouts, no strings above standard top, fifths presets) invalidated frozen I8 and r2 I9-I12/O11-O13. Reset Rule applied; re-run from Phase 0 as r3.",
+      "retired": [
+        "I8",
+        "I9",
+        "I10",
+        "I11",
+        "I12",
+        "O11",
+        "O12",
+        "O13"
+      ],
+      "replaced": [
+        "I6"
+      ]
+    },
+    {
+      "at": "2026-09-19T22:49Z",
+      "reason": "Owner answers to A1/A3 changed string limits and allowed bass to extend upward; U12-U15, I6, I14, O14-O18 invalid. Reset Rule applied; re-run as r4.",
+      "retired": [
+        "O14-O18 (r3)"
+      ],
+      "replaced": [
+        "U12",
+        "U13",
+        "U14",
+        "U15",
+        "I6",
+        "I14",
+        "I15 (cases added)"
+      ]
+    }
+  ],
+  "frozen_hashes_file": "tests/FROZEN.sha256",
+  "environment": {
+    "juce_path": "D:/JUCE",
+    "generator": "Ninja",
+    "build_type": "Release",
+    "compiler": "MSVC x64 (VS 2022)"
+  },
+  "resume_instructions": "Verify hashes (sha256sum -c tests/FROZEN.sha256), check out the head of this branch, continue at phase.",
+  "previous_run": "gen-20260919T224047Z-fret-note-names-r3",
+  "real_juce_verification": {
+    "juce_version": "8.0.15",
+    "unit_tests": "17/17 cases, 19926 assertions - g++, frozen CMake+ctest, and ASan+UBSan",
+    "integration_tests": "13/13 cases (I1-I7, I13-I16) - real compile+link+run against JUCE 8.0.15",
+    "editor_ui": "compiles clean against real JUCE, 0 new warnings; NOT visually/interactively verified (single-core sandbox couldn't complete a second JUCE GUI-app build in one tool call)",
+    "not_done_here": "S8 Windows/MSVC release build, S9 manual Ableton operational tests (O1-O19)"
+  }
+}

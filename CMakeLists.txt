@@ -42,6 +42,10 @@ target_sources(MicroGuitar
         TuningStructures.h
         MicrotonalVoice.cpp
         MicrotonalVoice.h
+        NoteNaming.cpp
+        NoteNaming.h
+        Instruments.cpp
+        Instruments.h
 )
 
 # 4. Link the JUCE libraries our code relies on

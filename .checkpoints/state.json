@@ -1,7 +1,7 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 5,
+  "sequence": 6,
   "profiles": [
     "software"
   ],
@@ -109,6 +109,6 @@
     "K-20261031T195100Z-juce-path-hardcoded",
     "K-20261031T195200Z-stringcount-param-inert"
   ],
-  "updated_at": "2026-10-31T19:57:00Z",
-  "scratchpad": "All addendum steps green. Review corrected for prior gen branch. Push landed on 2nd attempt after owner-supplied credential (D-4 supersedes bundle fallback); ls-remote verified."
+  "updated_at": "2026-10-31T20:00:00Z",
+  "scratchpad": "Merged prior gen branch r4 (fret note names, instrument presets, EDO control, frozen test suite) into the addendum branch. Conflict in .checkpoints/state.json resolved: ours kept as canonical; r4's preserved as state-r4-legacy.json. G-4 (currentNumStrings) fixed by r4; superseding knowledge item added. G-3 (D:/JUCE) still open."
 }
