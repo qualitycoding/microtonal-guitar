@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-14]
+        os: [windows-2022, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -177,7 +177,7 @@ jobs:
 
       - name: Post-condition — all three platform artifacts present and non-empty
         run: |
-          for os in windows-2022 ubuntu-22.04 macos-14; do
+          for os in windows-2022 ubuntu-22.04 macos-15; do
             d="release-assets/MicroGuitar-$os"
             test -d "$d" || { echo "FAIL: missing artifact dir $d"; exit 1; }
             test -n "$(find "$d" -type f -print -quit)" || { echo "FAIL: empty artifact dir $d"; exit 1; }
@@ -186,7 +186,7 @@ jobs:
       - name: Package per-platform zips
         run: |
           cd release-assets
-          for os in windows-2022 ubuntu-22.04 macos-14; do
+          for os in windows-2022 ubuntu-22.04 macos-15; do
             zip -qry "MicroGuitar-${{ github.ref_name }}-$os.zip" "MicroGuitar-$os"
           done
 
