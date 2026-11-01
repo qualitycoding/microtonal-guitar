@@ -1,0 +1,14 @@
+# Release dry-run — S-070 (no tag, no publish; G-002)
+
+Source: CI run 41347042651 (push of 5a47f597, PR #14 head) — full matrix green incl. macos-15 (D-13).
+Artifacts downloaded from GitHub Actions artifact store on 2026-11-02; checksums computed on downloaded bytes.
+
+e13d3b7840c5fdb4350a1e0d5d0116caefdee391356ec6e543152e7c6397ba44  Standalone/MicroGuitar  (7887688 bytes, ubuntu-22.04)
+4197fe0c5ee47bbc2e97c1b548de9cf18533cd61bbf255eb5823cbd4a3ac2bf3  VST3/MicroGuitar.vst3/Contents/Resources/moduleinfo.json  (1134 bytes, ubuntu-22.04)
+b889dd72f168327be53dd1737dc5757f7765c47cb657dfc4ef05b9a1bc48510b  VST3/MicroGuitar.vst3/Contents/x86_64-linux/MicroGuitar.so  (6914624 bytes, ubuntu-22.04)
+f811dbbcf0ee834b8fab2f7b0d39492f7b069c6ca3906f0a38459ebc3d6cd7a5  Standalone/MicroGuitar.exe  (8858624 bytes, windows-2022)
+e3b66071787a8b202b22d070021a2b16421adb296e391c52fd8b16f5b58b31de  VST3/MicroGuitar.vst3/Contents/Resources/moduleinfo.json  (1182 bytes, windows-2022)
+109ba2ac3c9245851485a0d41862de7594461a316594200bc3399d703e91361b  VST3/MicroGuitar.vst3/Contents/x86_64-win/MicroGuitar.vst3  (6828544 bytes, windows-2022)
+3d04a706737b30ae9d9fa9f3764bd4cfadc665c476d9904fc3a789b75d49defc  VST3/MicroGuitar.vst3/Contents/MacOS/MicroGuitar  (5031248 bytes, macos-15)
+4197fe0c5ee47bbc2e97c1b548de9cf18533cd61bbf255eb5823cbd4a3ac2bf3  VST3/MicroGuitar.vst3/Contents/Resources/moduleinfo.json  (1134 bytes, macos-15)
+6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b  VST3/MicroGuitar.vst3/Contents/_CodeSignature/CodeResources  (2200 bytes, macos-15)
