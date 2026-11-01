@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "MicrotonalVoice.h"
 #include "FrequencyGuard.h"
+#include <cmath>
 
 void MicrotonalVoice::noteStarted()
 {
@@ -39,9 +40,14 @@ void MicrotonalVoice::updateFrequency()
     double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
     targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
 
-    // Guarded (issue #5): getFrequency returns 0.0 for an out-of-range string index, and an
-    // unguarded division yields inf/NaN, which the <= 0.0 check in renderNextBlock misses.
-    currentDelayLength = safeDelayLength (currentSampleRate, targetFreq);
+    // Guarded (issue #5): validates the sample rate, the bend-adjusted target frequency and
+    // the computed delay length (>= 1 sample, strictly inside the delay buffer). An invalid
+    // state is a DEFINED silent state: zero delay length stops the render loop and the
+    // excitation is cleared. A later valid note (or bend) recomputes everything here.
+    currentDelayLength = safeDelayLength (currentSampleRate, targetFreq,
+                                          (double) delayBuffer.getNumSamples());
+    if (currentDelayLength == 0.0)
+        noiseSamplesLeft = 0;
 }
 
 void MicrotonalVoice::noteStopped(bool allowTailOff)
@@ -63,10 +69,27 @@ void MicrotonalVoice::notePitchbendChanged()
 
 void MicrotonalVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (currentDelayLength <= 0.0) return;
+    // Defense in depth (issue #5): whatever state the voice is in, the render loop may only
+    // ever run with a finite delay length of at least one sample, strictly inside the delay
+    // buffer. Any other state renders silence (the excitation was already cleared in
+    // updateFrequency); a tail-off is still allowed to finish so the voice can clear.
+    const int delayBufferSize = delayBuffer.getNumSamples();
+    const bool silent = delayBufferSize == 0
+                        || ! std::isfinite (currentDelayLength)
+                        || currentDelayLength < 1.0
+                        || currentDelayLength >= (double) delayBufferSize;
+
+    if (silent)
+    {
+        if (tailOff > 0.0)
+        {
+            tailOff *= 0.99;
+            if (tailOff <= 0.005) clearCurrentNote();
+        }
+        return;
+    }
 
     auto* delayData = delayBuffer.getWritePointer(0);
-    int delayBufferSize = delayBuffer.getNumSamples();
 
     while (--numSamples >= 0)
     {

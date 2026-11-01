@@ -25,6 +25,17 @@ Revision r3 (2026-09-19T22:40Z, branch `gen-20260919T224047Z-fret-note-names-r3`
 
 Revision r4 (2026-09-19T22:49Z, branch `gen-20260919T224942Z-fret-note-names-r4`): **Reset Rule applied.** Owner's A1/A3 answers invalidated U12–U15, I6, I14 and O14–O18. r3 versions preserved in `tests/retired/r3/`. `FROZEN.sha256` regenerated.
 
+Revision r5 (2026-11-01, branch `fix/issue-5-zero-freq-guard`, issue-remediation plan S-020):
+**Re-freeze after unfreeze.** Manifest repair + new suites. (a) The r4 manifest had gone stale on
+`main`: PRs #16/#17/#18 changed the three integration files (verified: the only deltas vs the r4
+frozen copies are the include-path changes the frozen headers' own harness-fix rule permits) without
+regenerating `FROZEN.sha256`; the manifest check therefore failed on `main` itself. The three files
+are re-frozen at their current (correct) hashes. (b) New suites appended: `tests/boundary/`
+(U-B1–U-B4, issue #5), `tests/tuning_engine/` (issue #4 lock-free + #5 guard), integration
+`VoiceGuardAndPitchTests.cpp` (I-B1, I-A4) and its `CMakeLists.txt`. `FROZEN.sha256` regenerated;
+all 18 entries verify. Filed as regression issue #11 (stale manifest was a process miss against
+issue #1's acceptance).
+
 ## Implementation-time test-defect fix (2026-09-19, during S1-S6)
 
 While implementing against real JUCE 8.0.15, integration test I16's second assertion failed:

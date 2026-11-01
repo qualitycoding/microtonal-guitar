@@ -4,7 +4,17 @@
 // the MicroGuitarIntegrationTests console target; renders real audio through MicroGuitarProcessor.
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
+
+// I-B1 needs white-box access to the playing voice: shrinking the string count while a note is
+// held makes the engine reject the note's string (getFrequency() -> 0.0), and the processor's
+// pitch-wheel routing only addresses strings < currentNumStrings, so the invalid-state
+// updateFrequency() call cannot be triggered through MIDI alone. JUCE headers are included
+// above (before the macro) so only first-party headers are affected.
+#define private public
 #include "PluginProcessor.h"
+#include "MicrotonalVoice.h"
+#undef private
+
 #include <cmath>
 #include <vector>
 
@@ -108,19 +118,27 @@ public:
             expect (renderBlocks (p, block, midi, 8, rendered));
             expect (maxMagnitude (rendered) > 0.0f); // audible pluck
 
+            MicrotonalVoice* heldVoice = nullptr;
+            for (int i = 0; i < p.mpeSynth.getNumVoices(); ++i)
+                if (auto* v = dynamic_cast<MicrotonalVoice*> (p.mpeSynth.getVoice (i)))
+                    if (v->isActive() && v->getStringIndex() == 9)
+                        heldVoice = v;
+            expect (heldVoice != nullptr);
+
             // Shrink the instrument to 4 strings while the note is held: the engine now has
-            // no string 9, so TuningEngine::getFrequency returns 0.0. A pitch-bend forces
-            // MicrotonalVoice::updateFrequency() while the note is held.
+            // no string 9, so the next updateFrequency() computes targetFreq == 0.0. (The
+            // processor's pitch-bend routing cannot deliver this — it only addresses strings
+            // below currentNumStrings — hence the white-box call; see file header.)
             rendered.clear();
             setParam (p, "stringCount", 4.0f);
-            pitchBend (midi, 8192);
+            heldVoice->updateFrequency();
             expect (renderBlocks (p, block, midi, 8, rendered));
             for (float v : rendered) expect (std::isfinite (v)); // no inf/NaN may reach the output
 
             // Recovery: a later valid configuration must fully re-initialise the voice.
             rendered.clear();
             setParam (p, "stringCount", 10.0f);
-            pitchBend (midi, 8192);
+            heldVoice->updateFrequency();
             expect (renderBlocks (p, block, midi, 8, rendered));
             expect (maxMagnitude (rendered) > 0.0f); // the string sounds again
 

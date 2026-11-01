@@ -149,18 +149,24 @@ static void testReferenceFrequencyRetunes()
 // zero/negative/non-finite frequencies instead of producing inf/NaN delay lengths.
 static void testSafeDelayLength()
 {
-    CHECK_NEAR (safeDelayLength (44100.0, 220.0), 200.454545454545, 1e-9); // normal path unchanged
-    CHECK (safeDelayLength (44100.0, 0.0) == 0.0);    // engine's invalid-index answer
-    CHECK (safeDelayLength (44100.0, -5.0) == 0.0);   // defensive: negative frequency
-    CHECK (safeDelayLength (44100.0, dblInf) == 0.0);    // inf frequency -> inf length
-    CHECK (safeDelayLength (44100.0, dblNan) == 0.0);    // NaN must never propagate
-    CHECK (safeDelayLength (44100.0, 1e-308) == 0.0); // length overflows to +inf
+    // 48001 = the voice's delay-buffer size at 44.1/48 kHz (sampleRate + 1 samples).
+    const double buf = 48001.0;
+    CHECK_NEAR (safeDelayLength (44100.0, 220.0, buf), 200.454545454545, 1e-9); // normal path unchanged
+    CHECK (safeDelayLength (44100.0, 0.0, buf) == 0.0);    // engine's invalid-index answer
+    CHECK (safeDelayLength (44100.0, -5.0, buf) == 0.0);   // defensive: negative frequency
+    CHECK (safeDelayLength (44100.0, dblInf, buf) == 0.0);    // inf frequency -> inf length
+    CHECK (safeDelayLength (44100.0, dblNan, buf) == 0.0);    // NaN must never propagate
+    CHECK (safeDelayLength (44100.0, 1e-308, buf) == 0.0); // length overflows to +inf
+    CHECK (safeDelayLength (44100.0, 220.0, 0.0) == 0.0);  // no delay buffer yet
+    CHECK (safeDelayLength (dblNan, 220.0, buf) == 0.0);   // invalid sample rate
+    CHECK (safeDelayLength (44100.0, 100000.0, buf) == 0.0);  // delay < 1 sample
+    CHECK (safeDelayLength (44100.0, 0.9, buf) == 0.0);       // delay outside the buffer
 
     // And the engine really does return 0.0 for indices the voice must treat as silent:
     TuningEngine e;
     CHECK (e.getFrequency (-1, 0) == 0.0);
     CHECK (e.getFrequency (TuningEngine::kMaxStrings, 0) == 0.0);
-    CHECK (safeDelayLength (44100.0, e.getFrequency (-1, 0)) == 0.0);
+    CHECK (safeDelayLength (44100.0, e.getFrequency (-1, 0), buf) == 0.0);
 }
 
 int main()

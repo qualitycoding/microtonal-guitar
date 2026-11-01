@@ -23,6 +23,11 @@ static int failures = 0;
 // produced by the guard, so "finite output" is a property of the real render math.
 static bool simulateRenderProducesFiniteOutput (double delayLength, int bufferSize, int numSamples)
 {
+    // Mirrors renderNextBlock()'s silent-state contract (issue #5): the render math may only
+    // run with a finite delay of at least one sample, strictly inside the buffer.
+    if (! std::isfinite (delayLength) || delayLength < 1.0 || delayLength >= (double) bufferSize)
+        return false;
+
     std::vector<float> delayLine ((size_t) bufferSize, 0.0f);
     int writePos = 0;
     float previous = 0.0f;
@@ -83,10 +88,12 @@ static void testDelayRangeValidationAndRecovery()
 {
     // Below one sample: frequency above the sample rate.
     CHECK_EQ (safeDelayLength (48000.0, 96000.0, 48001.0), 0.0);
-    CHECK_EQ (safeDelayLength (48000.0, 48000.0, 48001.0), 0.0); // exactly one sample -> too short to read
+
+    // Plan boundary (S-040): a delay of exactly one sample is admissible (>= 1 sample).
+    CHECK_EQ (safeDelayLength (48000.0, 48000.0, 48001.0), 1.0);
 
     // Outside the usable delay buffer: frequency so low the delay line cannot hold it.
-    CHECK_EQ (safeDelayLength (48000.0, 1.0, 48001.0), 0.0);            // length 48000 >= 48001? no: 48000 < 48001 OK
+    CHECK_EQ (safeDelayLength (48000.0, 1.0, 48001.0), 48000.0);        // just inside: valid
     CHECK_EQ (safeDelayLength (48000.0, 0.999, 48001.0), 0.0);          // length ~48048 >= 48001 -> silent
     CHECK_EQ (safeDelayLength (48000.0, 110.0, 48001.0),
               48000.0 / 110.0);                                          // valid input unchanged
@@ -99,8 +106,10 @@ static void testDelayRangeValidationAndRecovery()
 
     // Finite output: the real render math driven by guarded delay lengths never goes non-finite.
     CHECK (simulateRenderProducesFiniteOutput (48000.0 / 110.0, 48001, 4096));
+    // Non-finite delay is rejected before the render math (an unguarded render, as on the
+    // baseline, indexes the delay line at INT_MIN — the crash I-B1 demonstrates).
     CHECK (! simulateRenderProducesFiniteOutput (
-        std::numeric_limits<double>::infinity(), 48001, 64)); // sanity: unguarded would fail
+        std::numeric_limits<double>::infinity(), 48001, 64));
 }
 
 int main()

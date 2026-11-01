@@ -25,6 +25,7 @@ target_sources(MicroGuitarIntegrationTests
         TuningParameterTests.cpp
         InstrumentTests.cpp
         VoiceGuardAndPitchTests.cpp
+        LifecycleTests.cpp
         RunIntegrationTests.cpp
         ${REPO_ROOT}/PluginProcessor.cpp
         ${REPO_ROOT}/PluginProcessor.h
