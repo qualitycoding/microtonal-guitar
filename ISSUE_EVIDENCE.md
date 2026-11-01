@@ -39,6 +39,29 @@ hidden in #5 (D-007) — the writer mutex is documented as UI-side only.
 - #8: no `JuceHeader.h` in repo root; sources include explicit module headers
   (e.g. `juce_audio_basics/juce_audio_basics.h`) and JUCE's generated build headers via CMake.
 
-## S-060 / S-070 / S-090 updates
+## S-060 — #1 / #7 verification results
 
-Appended during execution — see `EXECUTION_LOG.md` and the sections below.
+- Frozen manifest: `sha256sum -c tests/FROZEN.sha256` — 18/18 OK (r5).
+- Pure unit suite, tuning-engine suite (behaviour + 40k-write 3-reader stress), new boundary
+  suite U-B1–U-B4: all green locally and in CI (`unit-tests` job, run 41341785984).
+- JUCE integration suite (frozen I1–I7, I13–I16 + I-B1, I-A4, I-B2): green locally (42-unit
+  harness, 0 failures); now a mandatory CI job (`integration-tests`, run 41341785984).
+- I7 (engine ratio 432/440) and I-A4 (rendered output pitch ratio 432/440, measured by
+  autocorrelation over 2 s of rendered audio): both green — refFreq audibly retunes output.
+- O1–O19 + O20–O22 (Ableton Live, Windows): **environment-blocked here** (no Windows/Ableton
+  host); honest status per Rule 14, gated at G-004. No operational closure claimed.
+
+## S-070 — #9 verification results
+
+- SemVer documented (README "Versioning and releases"); `VERSION` = 1.0.0; CMake validates
+  `MAJOR.MINOR.PATCH` with `FATAL_ERROR` and feeds project + plugin version from it. Consistent.
+- Apache-2.0 SPDX header on every first-party source (rescan 2026-11-01: clean); third-party
+  (`tests/third_party/doctest.h`) excluded as intended.
+- Root hand-written `JuceHeader.h` absent; sources use explicit module includes (with #8).
+- Release workflow: tag-gated (`v*`), collects all three platform artifacts, per-platform zips;
+  no tag pushed (G-002). Dry-run artifacts + checksums: produced from CI artifacts of run
+  41341785984 into `reviews/release-dryrun/` (no publish).
+
+## S-090 update
+
+See `EXECUTION_LOG.md`. Regression issue for the stale r4 manifest filed as #11.

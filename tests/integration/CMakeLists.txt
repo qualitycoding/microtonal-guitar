@@ -29,6 +29,9 @@ target_sources(MicroGuitarIntegrationTests
         RunIntegrationTests.cpp
         ${REPO_ROOT}/PluginProcessor.cpp
         ${REPO_ROOT}/PluginProcessor.h
+        ${REPO_ROOT}/PluginEditor.cpp
+        ${REPO_ROOT}/PluginEditor.h
+        ${REPO_ROOT}/EdoControl.h
         ${REPO_ROOT}/TuningEngine.cpp
         ${REPO_ROOT}/TuningEngine.h
         ${REPO_ROOT}/TuningStructures.h
