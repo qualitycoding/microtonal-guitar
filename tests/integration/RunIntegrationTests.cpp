@@ -1,5 +1,6 @@
 // FROZEN harness — runs every juce::UnitTest in category "MicroGuitar"; non-zero exit on failure.
-#include <JuceHeader.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
 int main()
 {

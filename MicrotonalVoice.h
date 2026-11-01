@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
-#include "JuceHeader.h"
+#include <juce_audio_basics/juce_audio_basics.h> // AudioBuffer, MPESynthesiserVoice (issue #8)
 #include "TuningEngine.h"
 #include <random>
 #include <atomic> // Added for thread-safe UI communication

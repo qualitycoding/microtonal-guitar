@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include "JuceHeader.h"
+// Explicit JUCE module includes replace the deleted hand-written JuceHeader.h (issue #8):
+// only what this header actually uses, so module upgrades surface here instead of drifting
+// silently inside a copied umbrella header.
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "TuningEngine.h"
 #include "Instruments.h"
 #include <array>

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include "JuceHeader.h"
+#include <juce_gui_basics/juce_gui_basics.h> // Component, Slider, Label (issue #8)
 #include "PluginProcessor.h"
 #include "EdoControl.h"
 #include "NoteNaming.h"

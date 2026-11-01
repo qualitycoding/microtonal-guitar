@@ -6,7 +6,8 @@
 // include path or JUCE namespace qualifier that does not change what is asserted is allowed
 // and must be logged in .checkpoints/state.json under "test_harness_fixes".
 
-#include <JuceHeader.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
 #include <cmath>
 
