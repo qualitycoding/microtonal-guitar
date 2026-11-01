@@ -1,0 +1,87 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  # --- Frozen pure-C++ unit tests (no JUCE) — fast gate on every platform change ---
+  unit-tests:
+    name: unit-tests (ubuntu)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure unit tests
+        run: cmake -S tests/unit -B build-tests -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build unit tests
+        run: cmake --build build-tests --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Run unit tests
+        run: ctest --test-dir build-tests --output-on-failure
+
+      - name: Post-condition — test binary exists and is non-empty
+        run: test -x build-tests/note_naming_tests && test -s build-tests/note_naming_tests
+
+  # --- Plugin binaries: VST3 + Standalone for Windows, Linux, macOS ---
+  plugin:
+    name: plugin (${{ matrix.os }})
+    needs: unit-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux JUCE build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libasound2-dev \
+            libfreetype6-dev \
+            libx11-dev libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev \
+            libgl1-mesa-dev \
+            libjack-jackd2-dev \
+            libwebkit2gtk-4.0-dev \
+            libcurl4-openssl-dev
+
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Post-condition — VST3 and Standalone artifacts exist and are non-empty
+        shell: bash
+        run: |
+          vst3=$(find build -iname "MicroGuitar*.vst3" -print -quit)
+          test -n "$vst3" || { echo "FAIL: no VST3 artifact found"; exit 1; }
+          test -e "$vst3" && test -s "$vst3" || { echo "FAIL: VST3 artifact missing or empty"; exit 1; }
+          echo "VST3 artifact: $vst3"
+          standalone=$(find build -path "*MicroGuitar*" \( -name "MicroGuitar" -o -name "MicroGuitar.exe" -o -name "MicroGuitar.app" \) -print -quit)
+          test -n "$standalone" || { echo "FAIL: no Standalone artifact found"; exit 1; }
+          echo "Standalone artifact: $standalone"
+
+      - name: Upload plugin artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MicroGuitar-${{ matrix.os }}
+          path: |
+            build/**/*.vst3/**
+            build/**/MicroGuitar
+            build/**/MicroGuitar.exe
+            build/**/MicroGuitar.app/**
+          if-no-files-found: error
