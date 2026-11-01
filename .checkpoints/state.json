@@ -1,7 +1,7 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 7,
+  "sequence": 8,
   "profiles": [
     "software"
   ],
@@ -104,13 +104,14 @@
   "lessons_loaded": [],
   "lessons_recorded": [
     "L-20261031T195000Z-fuse-mount-exec-bits",
-    "L-20261031T195400Z-check-remote-branches"
+    "L-20261031T195400Z-check-remote-branches",
+    "L-20261031T203000Z-gitbash-dir-stsize-zero"
   ],
   "knowledge_added": [
     "K-20261031T195100Z-juce-path-hardcoded",
     "K-20261031T195200Z-stringcount-param-inert",
     "K-20261031T201500Z-portable-juce-fetchcontent"
   ],
-  "updated_at": "2026-10-31T20:15:00Z",
-  "scratchpad": "G-3 fixed: portable FetchContent JUCE 9.0.4 + 3-platform CI workflow with artifact post-conditions. Unit tests pass locally (cmake 4.4.5); plugin compile dimension completes in CI. Toolchain+JUCE cached on mount at /mnt/agents/toolchain."
+  "updated_at": "2026-10-31T20:45:00Z",
+  "scratchpad": "G-3 CLOSED. CI run 41304527785: 4/4 jobs success; VST3+Standalone artifacts published for Windows/Linux/macOS (6.7-9.8MB each). One CI lesson recorded (Git Bash dir st_size). Branch pushed and verified."
 }
