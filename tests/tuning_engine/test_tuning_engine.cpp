@@ -101,11 +101,51 @@ static void testConcurrentReadWrite()
     CHECK_NEAR(e.getFrequency (2, 31), 146.83 * 2.0, 1e-9); // string 2 = D3, octave up
 }
 
+// Issue #7: the A4 reference frequency must measurably retune output. PluginProcessor derives
+// each open-string frequency as refFreq * 2^((midi-69)/12) (updateGuitarState) and the engine
+// multiplies by the tuning ratio; this locks the end-to-end contract at engine level.
+static GuitarState makeStateWithRefFreq (double refFreq, TuningSystem tuning)
+{
+    GuitarState s;
+    s.numStrings = 6;
+    s.referenceFrequency = refFreq;
+    s.openStringMidiNotes = { 40, 45, 50, 55, 59, 64 }; // E2 A2 D3 G3 B3 E4
+    for (int midi : s.openStringMidiNotes)
+        s.openStringFrequencies.push_back (refFreq * std::pow (2.0, (midi - 69) / 12.0));
+    s.currentTuning = std::move (tuning);
+    return s;
+}
+
+static void testReferenceFrequencyRetunes()
+{
+    // 12-EDO: known note, fixed string/fret pair -> frequency scales exactly with refFreq.
+    TuningEngine e440, e432;
+    e440.setGuitarState (makeStateWithRefFreq (440.0, TuningEngine::createEdo (12)));
+    e432.setGuitarState (makeStateWithRefFreq (432.0, TuningEngine::createEdo (12)));
+
+    CHECK_NEAR (e440.getFrequency (0, 0), 82.4068892282, 1e-6); // E2 at A4=440
+    CHECK_NEAR (e432.getFrequency (0, 0), 82.4068892282 * 432.0 / 440.0, 1e-6);
+
+    // Fret pitch also scales: string 1 (A2), fret 12, one octave up, both tunings.
+    CHECK_NEAR (e440.getFrequency (1, 12), 220.0, 1e-6);
+    CHECK_NEAR (e432.getFrequency (1, 12), 220.0 * 432.0 / 440.0, 1e-6);
+    CHECK_NEAR (e432.getFrequency (1, 12) / e440.getFrequency (1, 12), 432.0 / 440.0, 1e-12);
+
+    // 5-Limit Just must retune identically (ratio path, not just the EDO pow path).
+    TuningEngine j440, j415;
+    j440.setGuitarState (makeStateWithRefFreq (440.0, TuningEngine::create5LimitJust()));
+    j415.setGuitarState (makeStateWithRefFreq (415.0, TuningEngine::create5LimitJust()));
+    CHECK_NEAR (j440.getFrequency (0, 7), 82.4068892282 * 1.5, 1e-6);       // perfect fifth
+    CHECK_NEAR (j415.getFrequency (0, 7), 82.4068892282 * 1.5 * 415.0 / 440.0, 1e-6);
+    CHECK_NEAR (j415.getFrequency (0, 7) / j440.getFrequency (0, 7), 415.0 / 440.0, 1e-12);
+}
+
 int main()
 {
     testDefaultBehaviour();
     testEdoAndJust();
     testConcurrentReadWrite();
+    testReferenceFrequencyRetunes();
     if (failures == 0) std::printf ("ALL TUNING ENGINE TESTS PASSED\n");
     else std::printf ("%d FAILURE(S)\n", failures);
     return failures == 0 ? 0 : 1;
