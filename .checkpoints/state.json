@@ -1,6 +1,13 @@
 {
-  "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
-  "branch": "gen-20261031T194500Z-protocol-v36-addendum",
+  "run_id": "gen-20261101T-issue-remediation",
+  "branch": "fix/issue-5-zero-freq-guard",
+  "plan": "plan/issue-remediation/PLAN.md (14 steps S-000..S-KNOW)",
+  "s000_evidence": {
+    "access": "token-authenticated ls-remote + issues API OK; #5 open, #1/#4/#6-#10 closed",
+    "baseline": "origin/main == 504f5a93eeb081ac78776ef74b91142fe6307ef4 (matches plan)",
+    "issue5_branch": "fix/issue-5-zero-freq-guard based on 504f5a9 with a PARTIAL guard (FrequencyGuard.h safeDelayLength); superseded by plan-conformant test-first remediation per S-040 (sample-rate + delay-range validation, defined silent state, recovery)",
+    "work_branch_decision": "implement on fix/issue-5-zero-freq-guard (plan-designated branch, current baseline)"
+  },
   "sequence": 9,
   "profiles": [
     "software"

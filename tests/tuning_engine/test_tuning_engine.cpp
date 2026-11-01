@@ -3,11 +3,16 @@
 // Part 2: multithreaded smoke test - writers and concurrent readers must never crash,
 //         never return non-finite values, and converge to the last published state.
 #include "TuningEngine.h"
+#include "FrequencyGuard.h"
 #include <atomic>
 #include <cmath>
 #include <cstdio>
+#include <limits>
 #include <thread>
 #include <vector>
+
+static const double dblInf = std::numeric_limits<double>::infinity();
+static const double dblNan = std::numeric_limits<double>::quiet_NaN();
 
 static int failures = 0;
 #define CHECK(cond) do { if (!(cond)) { \
@@ -140,12 +145,37 @@ static void testReferenceFrequencyRetunes()
     CHECK_NEAR (j415.getFrequency (0, 7) / j440.getFrequency (0, 7), 415.0 / 440.0, 1e-12);
 }
 
+// Issue #5: the delay-length computation feeding the Karplus-Strong loop must reject
+// zero/negative/non-finite frequencies instead of producing inf/NaN delay lengths.
+static void testSafeDelayLength()
+{
+    // 48001 = the voice's delay-buffer size at 44.1/48 kHz (sampleRate + 1 samples).
+    const double buf = 48001.0;
+    CHECK_NEAR (safeDelayLength (44100.0, 220.0, buf), 200.454545454545, 1e-9); // normal path unchanged
+    CHECK (safeDelayLength (44100.0, 0.0, buf) == 0.0);    // engine's invalid-index answer
+    CHECK (safeDelayLength (44100.0, -5.0, buf) == 0.0);   // defensive: negative frequency
+    CHECK (safeDelayLength (44100.0, dblInf, buf) == 0.0);    // inf frequency -> inf length
+    CHECK (safeDelayLength (44100.0, dblNan, buf) == 0.0);    // NaN must never propagate
+    CHECK (safeDelayLength (44100.0, 1e-308, buf) == 0.0); // length overflows to +inf
+    CHECK (safeDelayLength (44100.0, 220.0, 0.0) == 0.0);  // no delay buffer yet
+    CHECK (safeDelayLength (dblNan, 220.0, buf) == 0.0);   // invalid sample rate
+    CHECK (safeDelayLength (44100.0, 100000.0, buf) == 0.0);  // delay < 1 sample
+    CHECK (safeDelayLength (44100.0, 0.9, buf) == 0.0);       // delay outside the buffer
+
+    // And the engine really does return 0.0 for indices the voice must treat as silent:
+    TuningEngine e;
+    CHECK (e.getFrequency (-1, 0) == 0.0);
+    CHECK (e.getFrequency (TuningEngine::kMaxStrings, 0) == 0.0);
+    CHECK (safeDelayLength (44100.0, e.getFrequency (-1, 0), buf) == 0.0);
+}
+
 int main()
 {
     testDefaultBehaviour();
     testEdoAndJust();
     testConcurrentReadWrite();
     testReferenceFrequencyRetunes();
+    testSafeDelayLength();
     if (failures == 0) std::printf ("ALL TUNING ENGINE TESTS PASSED\n");
     else std::printf ("%d FAILURE(S)\n", failures);
     return failures == 0 ? 0 : 1;

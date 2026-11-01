@@ -42,14 +42,64 @@ jobs:
       - name: Post-condition — TuningEngine test binary exists and is non-empty
         run: test -x build-te/tuning_engine_tests && test -s build-te/tuning_engine_tests
 
+      - name: Configure boundary tests (issue #5 voice-guard validation, U-B1–U-B4)
+        run: cmake -S tests/boundary -B build-bd -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build boundary tests
+        run: cmake --build build-bd --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Run boundary tests
+        run: ctest --test-dir build-bd --output-on-failure
+
+      - name: Post-condition — boundary test binary exists and is non-empty
+        run: test -x build-bd/voice_frequency_guard_tests && test -s build-bd/voice_frequency_guard_tests
+
+  # --- JUCE integration tests (frozen I1–I7, I13–I16 + remediation I-B1, I-A4): headless
+  #     console harness rendering real audio through MicroGuitarProcessor (issue #1/#5/#7) ---
+  integration-tests:
+    name: integration-tests (ubuntu)
+    needs: unit-tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux JUCE build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libasound2-dev \
+            libfreetype6-dev \
+            libx11-dev libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev \
+            libgl1-mesa-dev \
+            libjack-jackd2-dev \
+            libwebkit2gtk-4.0-dev \
+            libcurl4-openssl-dev
+
+      - name: Configure integration tests
+        run: cmake -S tests/integration -B build-it -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build integration tests
+        run: cmake --build build-it --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Run integration tests
+        run: ctest --test-dir build-it --output-on-failure --no-tests=error
+
+      - name: Post-condition — integration test binary exists and is non-empty
+        run: |
+          bin=$(find build-it -name MicroGuitarIntegrationTests -type f -print -quit)
+          test -n "$bin" || { echo "FAIL: no integration test binary found"; exit 1; }
+          test -x "$bin" && test -s "$bin" || { echo "FAIL: binary missing or empty: $bin"; exit 1; }
+          echo "Integration test binary: $bin"
+
   # --- Plugin binaries: VST3 + Standalone for Windows, Linux, macOS ---
   plugin:
     name: plugin (${{ matrix.os }})
-    needs: unit-tests
+    needs: integration-tests
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-14]
+        os: [windows-2022, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -127,7 +177,7 @@ jobs:
 
       - name: Post-condition — all three platform artifacts present and non-empty
         run: |
-          for os in windows-2022 ubuntu-22.04 macos-14; do
+          for os in windows-2022 ubuntu-22.04 macos-15; do
             d="release-assets/MicroGuitar-$os"
             test -d "$d" || { echo "FAIL: missing artifact dir $d"; exit 1; }
             test -n "$(find "$d" -type f -print -quit)" || { echo "FAIL: empty artifact dir $d"; exit 1; }
@@ -136,7 +186,7 @@ jobs:
       - name: Package per-platform zips
         run: |
           cd release-assets
-          for os in windows-2022 ubuntu-22.04 macos-14; do
+          for os in windows-2022 ubuntu-22.04 macos-15; do
             zip -qry "MicroGuitar-${{ github.ref_name }}-$os.zip" "MicroGuitar-$os"
           done
 

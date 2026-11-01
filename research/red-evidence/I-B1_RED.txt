@@ -1,0 +1,19 @@
+RED EVIDENCE — I-B1 against the unguarded baseline (plan S-020)
+==============================================================
+Baseline: main @ 504f5a93eeb081ac78776ef74b91142fe6307ef4 (worktree /tmp/mgmain) with
+tests/integration/{CMakeLists.txt,VoiceGuardAndPitchTests.cpp} copied in. JUCE 9.0.4 (pinned).
+Harness: resumable g++ build (research/scripts/build_integration.py); the baseline unit
+MicrotonalVoice.cpp was compiled from the worktree and swapped into an otherwise green cache.
+
+Run (Release, -O2):
+    ./it-red
+Result (red, the intended reason):
+    Starting tests in: VoiceGuardAndPitchTests / I-B1 held note survives string-count shrink ...
+    Segmentation fault            (exit=139)
+
+Cause: with the string count shrunk under a held note, updateFrequency() divides by
+targetFreq == 0.0 -> currentDelayLength = +inf; renderNextBlock's `<= 0.0` check passes inf,
+the read position becomes -inf, (int)(-inf) is INT_MIN and the delay-line indexing is undefined
+behaviour — here a crash, in general inf/NaN audio or memory corruption on the audio thread.
+
+U-B1..U-B4 red evidence: tests/boundary/RED_EVIDENCE.txt (FrequencyGuard.h absent on baseline).
