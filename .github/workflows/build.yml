@@ -86,7 +86,11 @@ jobs:
         run: ctest --test-dir build-it --output-on-failure --no-tests=error
 
       - name: Post-condition — integration test binary exists and is non-empty
-        run: test -x build-it/MicroGuitarIntegrationTests && test -s build-it/MicroGuitarIntegrationTests
+        run: |
+          bin=$(find build-it -name MicroGuitarIntegrationTests -type f -print -quit)
+          test -n "$bin" || { echo "FAIL: no integration test binary found"; exit 1; }
+          test -x "$bin" && test -s "$bin" || { echo "FAIL: binary missing or empty: $bin"; exit 1; }
+          echo "Integration test binary: $bin"
 
   # --- Plugin binaries: VST3 + Standalone for Windows, Linux, macOS ---
   plugin:
