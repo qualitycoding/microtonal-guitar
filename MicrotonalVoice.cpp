@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "MicrotonalVoice.h"
+#include "FrequencyGuard.h"
 
 void MicrotonalVoice::noteStarted()
 {
@@ -38,7 +39,9 @@ void MicrotonalVoice::updateFrequency()
     double bendInSemitones = currentlyPlayingNote.totalPitchbendInSemitones;
     targetFreq *= std::pow(2.0, bendInSemitones / 12.0);
 
-    currentDelayLength = currentSampleRate / targetFreq;
+    // Guarded (issue #5): getFrequency returns 0.0 for an out-of-range string index, and an
+    // unguarded division yields inf/NaN, which the <= 0.0 check in renderNextBlock misses.
+    currentDelayLength = safeDelayLength (currentSampleRate, targetFreq);
 }
 
 void MicrotonalVoice::noteStopped(bool allowTailOff)
