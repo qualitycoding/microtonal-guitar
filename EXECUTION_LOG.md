@@ -21,3 +21,4 @@ here and in DEVIATIONS.md.
 | 2026-10-31T19:54 | review-correction | 1 | pass | — | ls-remote revealed prior gen branch r4; REVIEW.md headline + G-1/G-2 corrected; lesson L-...54Z recorded (Rule 11) |
 | 2026-10-31T19:57 | S-ADD-006 | 2 | pass | b301c9a.. | Credential supplied by owner; push landed; ls-remote confirms remote HEAD == local HEAD |
 | 2026-10-31T20:00 | merge-r4 | 1 | pass | a8aad92 | Merged gen-20260919T224942Z-fret-note-names-r4: 30 files, ~10k LOC (features + frozen tests + plan). One conflict (.checkpoints/state.json) resolved: ours canonical, r4 preserved as state-r4-legacy.json. G-4 verified fixed on r4 line; superseding knowledge item added. G-3 (D:/JUCE) still open |
+| 2026-10-31T20:04 | push-after-merge | 1 | blocked | ac39566 | Token valid at 19:57Z now returns Bad credentials (auto-revoked); push cannot land; bundle fallback refreshed; owner asked for a fresh token |
