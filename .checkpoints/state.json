@@ -1,7 +1,7 @@
 {
   "run_id": "gen-20261031T194500Z-protocol-v36-addendum",
   "branch": "gen-20261031T194500Z-protocol-v36-addendum",
-  "sequence": 6,
+  "sequence": 7,
   "profiles": [
     "software"
   ],
@@ -87,8 +87,9 @@
     "variable_store": {
       "git_version": "2.39.5",
       "gpp_version": "12.2.0-14+deb12u1",
-      "cmake": "absent",
-      "base_commit": "9644510"
+      "cmake": "4.4.5 (staged from GitHub release via proxy)",
+      "base_commit": "9644510",
+      "juce_pin": "9.0.4"
     }
   },
   "tier_substitutions": [],
@@ -107,8 +108,9 @@
   ],
   "knowledge_added": [
     "K-20261031T195100Z-juce-path-hardcoded",
-    "K-20261031T195200Z-stringcount-param-inert"
+    "K-20261031T195200Z-stringcount-param-inert",
+    "K-20261031T201500Z-portable-juce-fetchcontent"
   ],
-  "updated_at": "2026-10-31T20:00:00Z",
-  "scratchpad": "Merged prior gen branch r4 (fret note names, instrument presets, EDO control, frozen test suite) into the addendum branch. Conflict in .checkpoints/state.json resolved: ours kept as canonical; r4's preserved as state-r4-legacy.json. G-4 (currentNumStrings) fixed by r4; superseding knowledge item added. G-3 (D:/JUCE) still open."
+  "updated_at": "2026-10-31T20:15:00Z",
+  "scratchpad": "G-3 fixed: portable FetchContent JUCE 9.0.4 + 3-platform CI workflow with artifact post-conditions. Unit tests pass locally (cmake 4.4.5); plugin compile dimension completes in CI. Toolchain+JUCE cached on mount at /mnt/agents/toolchain."
 }
