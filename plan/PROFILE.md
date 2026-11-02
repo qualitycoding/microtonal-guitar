@@ -12,3 +12,7 @@
   the Phase 0.1 probe (see `.checkpoints/state.json`).
 * **Knowledge store:** `qualitycoding/knowledge` — does not exist at intake (404); R0 loads
   nothing per 0.3.7. This run's lessons/knowledge travel on this branch (D-ADD-005).
+
+## v3.9 addendum profile confirmation
+
+Active profiles unchanged; `software` active; `software.deploys` unchanged. Target protocol v3.9.
