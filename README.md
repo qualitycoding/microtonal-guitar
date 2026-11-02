@@ -41,6 +41,20 @@ Two small, JUCE-independent modules do the rest of the new work and are unit-tes
 
 When a note is played, the `MicrotonalVoice` generates a short noise excitation and feeds it into a feedback delay buffer. To keep the visual interface smooth without causing audio dropouts, the UI reads one locked snapshot of the tuning state per repaint (rather than once per fret label) and caches the computed note-name strings, rebuilding the cache only when the tuning, instrument or reference frequency actually changes.
 
+### Building and testing
+
+You need CMake 3.22 or later and a C++17 or newer compiler. The build downloads JUCE 9.0.4 itself (pass
+`-DMICROGUITAR_JUCE_TAG=...` to change it, or `-DFETCHCONTENT_SOURCE_DIR_JUCE=/path/to/JUCE` to use a local copy). Formats are VST3 and Standalone.
+
+```bash
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+The tests are separate CMake projects, each built the same way and run with `ctest`: `tests/unit`,
+`tests/tuning_engine`, `tests/boundary` and the JUCE-based `tests/integration`. CI (`.github/workflows/build.yml`) runs
+the first three on Ubuntu and checks the frozen test manifest (`tests/FROZEN.sha256`).
+
 ### Known limitations / backlog
 
 * The "Musical Key" dropdown's parameter listener was never wired up in the original code (it has no audible or visual effect); out of scope for this change.
