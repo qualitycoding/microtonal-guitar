@@ -6,6 +6,25 @@ Status: **FROZEN** — implementers may not modify, skip, disable or weaken any 
 
 Verify before every step:  `sha256sum -c tests/FROZEN.sha256`
 
+## Re-freeze rule (issue #19, K-20261101T-frozen-manifest-refreeze)
+
+Any PR that modifies a file listed in `tests/FROZEN.sha256` must re-freeze the manifest **in the
+same PR**. CI enforces freshness (`sha256sum -c tests/FROZEN.sha256` in the unit-tests job of
+`.github/workflows/build.yml`), so a stale manifest fails the build rather than the next
+remediation run.
+
+To re-freeze after an allowed change:
+
+    cd <repo root>
+    sha256sum $(awk '{print $2}' tests/FROZEN.sha256) > /tmp/FROZEN.new
+    # verify against a clean checkout of the PR's target content, then:
+    mv /tmp/FROZEN.new tests/FROZEN.sha256
+
+Always compute hashes from committed content (`git show HEAD:<file>` or a clean checkout), never
+from a dirty working tree — the r5 stale-hash miss (issue #19) came from freezing a working tree
+that still held the pre-fix copy of a file. Append a `Revision rN` note below describing what
+changed and why it is permitted.
+
 | Suite | File | Cases | Verified at freeze |
 |-------|------|-------|--------------------|
 | Unit (no JUCE) | `unit/test_note_naming.cpp` | U1–U11 | Compiles; passes against a throwaway reference impl (19,467 assertions) |
